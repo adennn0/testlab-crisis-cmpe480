@@ -1,0 +1,118 @@
+/* ============================================================
+   TESTLAB CRISIS — Dark Cyberpunk Theme
+   ============================================================ */
+
+:root {
+  /* === Base Backgrounds === */
+  --bg-void:       #050811;
+  --bg-deep:       #080d1a;
+  --bg-surface:    #0d1525;
+  --bg-card:       #111c30;
+  --bg-card-hover: #162238;
+  --bg-overlay:    rgba(5, 8, 17, 0.92);
+
+  /* === Border & Dividers === */
+  --border-subtle: rgba(100, 160, 255, 0.08);
+  --border-dim:    rgba(100, 160, 255, 0.15);
+  --border-glow:   rgba(100, 160, 255, 0.35);
+
+  /* === Typography === */
+  --text-primary:   #e8f0ff;
+  --text-secondary: #8ba3cc;
+  --text-muted:     #4a6080;
+  --text-accent:    #64a0ff;
+
+  /* === Accent — Default (Banking) === */
+  --accent-primary:   #3d7fff;
+  --accent-secondary: #1a4fcc;
+  --accent-glow:      rgba(61, 127, 255, 0.4);
+  --accent-soft:      rgba(61, 127, 255, 0.12);
+
+  /* === Scenario Themes === */
+  /* Banking */
+  --scenario-banking-primary:   #3d7fff;
+  --scenario-banking-secondary: #0d2a6e;
+  --scenario-banking-glow:      rgba(61, 127, 255, 0.5);
+  --scenario-banking-icon:      "🏦";
+
+  /* Healthcare */
+  --scenario-healthcare-primary:   #00d4aa;
+  --scenario-healthcare-secondary: #004d3d;
+  --scenario-healthcare-glow:      rgba(0, 212, 170, 0.5);
+
+  /* E-Commerce */
+  --scenario-ecommerce-primary:   #ff6b35;
+  --scenario-ecommerce-secondary: #5c2000;
+  --scenario-ecommerce-glow:      rgba(255, 107, 53, 0.5);
+
+  /* === Metric Zones === */
+  --zone-critical-bg:   rgba(255, 45, 85, 0.15);
+  --zone-critical-bar:  #ff2d55;
+  --zone-critical-text: #ff6b8a;
+  --zone-critical-glow: rgba(255, 45, 85, 0.5);
+
+  --zone-warning-bg:   rgba(255, 159, 10, 0.15);
+  --zone-warning-bar:  #ff9f0a;
+  --zone-warning-text: #ffc554;
+  --zone-warning-glow: rgba(255, 159, 10, 0.5);
+
+  --zone-safe-bg:   rgba(48, 209, 88, 0.12);
+  --zone-safe-bar:  #30d158;
+  --zone-safe-text: #5de87b;
+  --zone-safe-glow: rgba(48, 209, 88, 0.4);
+
+  --zone-optimal-bg:   rgba(100, 160, 255, 0.12);
+  --zone-optimal-bar:  #64a0ff;
+  --zone-optimal-text: #a0c4ff;
+  --zone-optimal-glow: rgba(100, 160, 255, 0.4);
+
+  /* === Score Grades === */
+  --grade-s: #ffd700;
+  --grade-a: #30d158;
+  --grade-b: #64a0ff;
+  --grade-c: #ff9f0a;
+  --grade-f: #ff2d55;
+
+  /* === Outcome Colors === */
+  --outcome-legendary: #ffd700;
+  --outcome-success:   #30d158;
+  --outcome-partial:   #ff9f0a;
+  --outcome-crisis:    #ff2d55;
+
+  /* === UI Elements === */
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+  --radius-full: 9999px;
+
+  --shadow-card:   0 4px 24px rgba(0, 0, 0, 0.5), 0 1px 0 var(--border-subtle);
+  --shadow-glow:   0 0 40px var(--accent-glow);
+  --shadow-crisis: 0 0 60px rgba(255, 45, 85, 0.4);
+
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === Scenario-specific accent overrides === */
+[data-scenario="banking"] {
+  --accent-primary:   var(--scenario-banking-primary);
+  --accent-secondary: var(--scenario-banking-secondary);
+  --accent-glow:      var(--scenario-banking-glow);
+  --accent-soft:      rgba(61, 127, 255, 0.12);
+}
+
+[data-scenario="healthcare"] {
+  --accent-primary:   var(--scenario-healthcare-primary);
+  --accent-secondary: var(--scenario-healthcare-secondary);
+  --accent-glow:      var(--scenario-healthcare-glow);
+  --accent-soft:      rgba(0, 212, 170, 0.12);
+}
+
+[data-scenario="ecommerce"] {
+  --accent-primary:   var(--scenario-ecommerce-primary);
+  --accent-secondary: var(--scenario-ecommerce-secondary);
+  --accent-glow:      var(--scenario-ecommerce-glow);
+  --accent-soft:      rgba(255, 107, 53, 0.12);
+}
