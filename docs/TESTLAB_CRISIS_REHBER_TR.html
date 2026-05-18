@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TestLab Crisis — Oyun Rehberi + Proje Haritası (TR)</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #101a33;
+      --text: #e7ecff;
+      --muted: #aeb8e6;
+      --border: rgba(255,255,255,0.12);
+      --accent: #3d7fff;
+      --code: #0a0f1f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 44px 24px; }
+    header {
+      background: linear-gradient(180deg, rgba(61,127,255,0.18), transparent);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 22px 18px;
+      margin-bottom: 20px;
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: -0.01em; }
+    .sub { color: var(--muted); margin: 0; }
+
+    .card {
+      background: rgba(16, 26, 51, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 18px;
+      margin: 14px 0;
+      break-inside: avoid;
+    }
+    h2 { margin: 0 0 10px; font-size: 18px; }
+    h3 { margin: 14px 0 8px; font-size: 15px; color: var(--text); }
+    p { margin: 10px 0; color: var(--text); }
+    ul { margin: 10px 0 10px 18px; color: var(--text); }
+    li { margin: 6px 0; }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+    }
+    pre {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      overflow: auto;
+    }
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: rgba(61,127,255,0.08);
+      border-radius: 12px;
+      color: var(--text);
+    }
+    .muted { color: var(--muted); }
+
+    @media print {
+      body { background: white; color: black; }
+      header, .card { background: white; border: 1px solid #ddd; }
+      pre { background: #f6f8fa; border: 1px solid #ddd; }
+      .note { background: #f1f7ff; border-left: 4px solid #2f6feb; }
+      a { color: black; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>TestLab Crisis — Oyun Rehberi + Proje Haritası (TR)</h1>
+      <p class="sub">0’dan anlatım + “nerede ne var” dosya haritası + PDF’e dönüştürme</p>
+    </header>
+
+    <div class="card">
+      <div class="note">
+        <strong>Not:</strong> Bu proje <strong>database kullanmıyor</strong>. Sorular/şıklar ve kriz senaryoları <code>src/data/</code> altında statik JS dosyalarında. Save varsa tarayıcı <code>localStorage</code> ile.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>1) Oyun ne? Ne yapıyorum?</h2>
+      <p>Sen bir “Lead Test Manager / QA Lead” gibi davranıyorsun. Her bölümde (phase/question):</p>
+      <ul>
+        <li>Sana bir durum (context) verilir.</li>
+        <li>4 adet karar (decision) sunulur.</li>
+        <li>Bir tanesini seçersin.</li>
+        <li>Seçimin 7 metriği (KPI) değiştirir, skor ekler ve ISO referanslı geri bildirim gösterir.</li>
+      </ul>
+      <p>Toplam 12 soru var. Sonunda result ekranında harf notu (S/A/B/C/F) ve outcome alırsın.</p>
+    </div>
+
+    <div class="card">
+      <h2>2) Kurulum ve çalıştırma (en kısa)</h2>
+      <pre><code>npm install
+npm run dev</code></pre>
+      <p class="muted">Terminal URL verir (genelde http://localhost:5173). Tarayıcıda aç.</p>
+    </div>
+
+    <div class="card">
+      <h2>3) Oyun nasıl oynanır? (0’dan anlatım)</h2>
+      <h3>Adım 1 — Intro</h3>
+      <ul>
+        <li>Oyunun mantığı anlatılır.</li>
+        <li>New Simulation ile yeni oyun başlatırsın.</li>
+        <li>Resume varsa yarım kaldığın yerden devam edersin.</li>
+      </ul>
+      <h3>Adım 2 — Senaryo seçimi</h3>
+      <ul>
+        <li>Banking / Healthcare / Ecommerce arasından seçersin.</li>
+        <li>Bu seçim hangi soru setinin kullanılacağını belirler.</li>
+      </ul>
+      <h3>Adım 3 — Game ekranı</h3>
+      <ul>
+        <li>Üstte 7 KPI barı görürsün.</li>
+        <li>Ortada “Situation Briefing” (soru bağlamı) vardır.</li>
+        <li>Altta 4 karar çıkar; sadece birini seçebilirsin.</li>
+        <li>Seçince Feedback modal açılır: açıklama + ISO referansı + metric etkileri.</li>
+      </ul>
+      <h3>Adım 4 — Crisis Event</h3>
+      <ul>
+        <li>Bazı phase’lerde kriz popup’ı tetiklenir.</li>
+        <li>Yine seçim yaparsın; metric + skor etkilenir.</li>
+      </ul>
+      <h3>Adım 5 — Result</h3>
+      <ul>
+        <li>12 phase bitince final score hesaplanır.</li>
+        <li>Harf notu ve outcome belirlenir.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>4) Metric’ler (7 KPI) nedir?</h2>
+      <p>Metric’ler 0–100 aralığında tutulur. Başlangıç değerleri sabittir ve senaryo seçince resetlenir.</p>
+      <ul>
+        <li><code>testCoverage</code> — test kapsamı</li>
+        <li><code>defectDetection</code> — bug yakalama etkinliği</li>
+        <li><code>stakeholderTrust</code> — paydaş güveni</li>
+        <li><code>teamMorale</code> — ekip morali</li>
+        <li><code>budgetEfficiency</code> — bütçe verimliliği</li>
+        <li><code>timelinePressure</code> — zaman baskısı (düşük olması daha iyi)</li>
+        <li><code>riskExposure</code> — risk maruziyeti (düşük olması daha iyi)</li>
+      </ul>
+      <p>Her decision içindeki <code>metricDeltas</code> değerleri direkt eklenir ve 0–100’e clamp edilir.</p>
+    </div>
+
+    <div class="card">
+      <h2>5) Score nasıl hesaplanıyor?</h2>
+      <ul>
+        <li>Her decision sonrası puan eklenir.</li>
+        <li>Oyun sonunda metric’lere göre ağırlıklı final metric puanı eklenir.</li>
+      </ul>
+      <p>Harf notu: 850+ S, 700+ A, 550+ B, 400+ C, altı F.</p>
+    </div>
+
+    <div class="card">
+      <h2>6) Save / Resume var mı? Database mi?</h2>
+      <ul>
+        <li>Database yok.</li>
+        <li>Save, tarayıcı <code>localStorage</code> ile.</li>
+        <li>Game ekranında autosave, result ekranında save temizleme var.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>7) Proje Haritası — “Nerede ne var?”</h2>
+      <h3>Sorular/Şıklar</h3>
+      <ul>
+        <li><code>src/data/scenarios/banking.js</code></li>
+        <li><code>src/data/scenarios/healthcare.js</code></li>
+        <li><code>src/data/scenarios/ecommerce.js</code></li>
+      </ul>
+      <h3>Kriz olayları</h3>
+      <ul><li><code>src/data/crisisEvents.js</code></li></ul>
+      <h3>Phase meta</h3>
+      <ul><li><code>src/data/phases.js</code></li></ul>
+      <h3>State + oyun kuralları</h3>
+      <ul>
+        <li><code>src/state/initialState.js</code></li>
+        <li><code>src/state/gameReducer.js</code></li>
+        <li><code>src/hooks/useGameState.js</code></li>
+      </ul>
+      <h3>Algoritmalar</h3>
+      <ul>
+        <li><code>src/utils/metricHelpers.js</code> (delta + clamp)</li>
+        <li><code>src/utils/scoring.js</code> (score + grade)</li>
+        <li><code>src/utils/outcomeCalculator.js</code> (ending/outcome)</li>
+      </ul>
+      <h3>Ekran akışı</h3>
+      <ul>
+        <li><code>src/App.jsx</code></li>
+        <li><code>src/components/screens/*</code></li>
+      </ul>
+      <h3>Save</h3>
+      <ul>
+        <li><code>src/state/storageService.js</code></li>
+        <li><code>src/hooks/useSaveLoad.js</code></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>8) PDF’e dönüştürme</h2>
+      <p>Bu HTML dosyasını tarayıcıda açıp <strong>Print → Save as PDF</strong> yapabilirsin.</p>
+      <p class="muted">Alternatif: <code>docs/TESTLAB_CRISIS_REHBER_TR.md</code> dosyasını <code>npx md-to-pdf</code> ile PDF’ye çevirebilirsin.</p>
+      <pre><code>npx md-to-pdf docs/TESTLAB_CRISIS_REHBER_TR.md</code></pre>
+    </div>
+
+    <div class="card">
+      <p class="muted">Son güncelleme: 2026-05-14</p>
+    </div>
+  </div>
+</body>
+</html>

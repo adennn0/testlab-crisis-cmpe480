@@ -271,5 +271,125 @@ export const ecommerce = {
         },
       ],
     },
+
+    // ─── Phase 7: Root Cause Engineering ───────────────────────────
+    {
+      phaseId: 7,
+      context: 'Black Friday is over. Now the engineering team digs into the N+1 query problem. How did this pass code review, QA, and staging without detection?',
+      decisions: [
+        { id: 'ec-p7-d1', label: 'Implement query profiling in CI pipeline', description: 'Add automated query analysis that flags N+1 patterns before code merges.',
+          metricDeltas: { defectDetection: 18, testCoverage: 12, riskExposure: -15, teamMorale: 8, budgetEfficiency: -8 },
+          feedback: 'Catching performance anti-patterns at the CI level is the most cost-effective place. This prevents the entire category of failure.', isoRef: 'ISO/IEC/IEEE 29119-4 §6', quality: 'best' },
+        { id: 'ec-p7-d2', label: 'Mandatory code review checklist', description: 'Add a performance checklist item to all pull request reviews.',
+          metricDeltas: { defectDetection: 8, testCoverage: 5, teamMorale: -3, riskExposure: -5, budgetEfficiency: 3 },
+          feedback: 'Checklists help but humans skip items under pressure. Automated enforcement is more reliable.', isoRef: 'ISO/IEC/IEEE 29119-4 §6', quality: 'neutral' },
+        { id: 'ec-p7-d3', label: 'Accept it as a one-off mistake', description: 'The N+1 was a rare edge case. Move on without process changes.',
+          metricDeltas: { budgetEfficiency: 8, teamMorale: 3, defectDetection: -8, riskExposure: 12, stakeholderTrust: -5 },
+          feedback: 'N+1 queries are the most common performance bug in ORM-based applications. Without prevention, this WILL recur.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'bad' },
+        { id: 'ec-p7-d4', label: 'Database query budgets per endpoint', description: 'Set maximum allowed queries per API endpoint and alert when exceeded.',
+          metricDeltas: { defectDetection: 12, testCoverage: 8, riskExposure: -10, budgetEfficiency: -5, teamMorale: 5 },
+          feedback: 'Query budgets are a sophisticated observability practice used by companies like Shopify and GitHub. Effective guard rails.', isoRef: 'ISO/IEC/IEEE 29119-3 §9.2', quality: 'good' },
+      ],
+    },
+
+    // ─── Phase 8: Customer Recovery ────────────────────────────────
+    {
+      phaseId: 8,
+      context: 'Marketing needs your input: 14,800 customers had abandoned carts during the outage. The brand reputation team wants to act fast before negative reviews spread.',
+      decisions: [
+        { id: 'ec-p8-d1', label: 'Personalized recovery emails with saved carts', description: 'Automatically restore abandoned carts and send personalized emails with a small discount.',
+          metricDeltas: { stakeholderTrust: 18, teamMorale: 8, riskExposure: -8, budgetEfficiency: -10, defectDetection: 3 },
+          feedback: 'Excellent customer recovery. Personalized outreach shows care and recovers revenue. Most e-commerce platforms see 25-40% cart recovery from well-timed emails.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'best' },
+        { id: 'ec-p8-d2', label: 'Generic mass apology email', description: 'Send a blanket "sorry for the inconvenience" email to all users.',
+          metricDeltas: { stakeholderTrust: 3, teamMorale: 3, budgetEfficiency: 3, riskExposure: -3, defectDetection: 0 },
+          feedback: 'Generic apologies feel hollow. Personalization shows you understand and value each affected customer.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'neutral' },
+        { id: 'ec-p8-d3', label: 'Ignore it — customers will come back', description: 'Black Friday shoppers are deal-hunters. They will return for Cyber Monday anyway.',
+          metricDeltas: { budgetEfficiency: 5, stakeholderTrust: -15, riskExposure: 5, teamMorale: -5, defectDetection: 0 },
+          feedback: 'Customer memory is long and competition is fierce. Ignoring affected users guarantees they choose a competitor next time.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'bad' },
+        { id: 'ec-p8-d4', label: 'Social media transparency campaign', description: 'Post a transparent account of what happened on social media and offer affected users priority support.',
+          metricDeltas: { stakeholderTrust: 12, teamMorale: 10, riskExposure: -5, budgetEfficiency: -3, defectDetection: 3 },
+          feedback: 'Social transparency can backfire but when done well it builds enormous brand loyalty. Authenticity resonates.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.5', quality: 'good' },
+      ],
+    },
+
+    // ─── Phase 9: Performance Hardening ────────────────────────────
+    {
+      phaseId: 9,
+      context: 'Cyber Monday is in 48 hours. The recommendation engine is fixed but the team is nervous. How do you build confidence that the platform can handle the next peak?',
+      decisions: [
+        { id: 'ec-p9-d1', label: 'Full-scale load test at 3× peak volume', description: 'Simulate 500,000 concurrent users hitting all critical paths simultaneously.',
+          metricDeltas: { testCoverage: 18, defectDetection: 15, riskExposure: -18, stakeholderTrust: 12, budgetEfficiency: -10 },
+          feedback: 'Testing beyond expected peak is how you find the real breaking points. This is exactly what Google, Netflix, and Amazon do before major events.', isoRef: 'ISO/IEC/IEEE 29119-4 §7.1', quality: 'best' },
+        { id: 'ec-p9-d2', label: 'Replay Black Friday traffic patterns', description: 'Use recorded Black Friday traffic to replay the exact load against the fixed system.',
+          metricDeltas: { testCoverage: 12, defectDetection: 12, riskExposure: -12, stakeholderTrust: 8, budgetEfficiency: -5 },
+          feedback: 'Traffic replay validates the specific fix but does not test for new failure modes. Good but not sufficient as sole validation.', isoRef: 'ISO/IEC/IEEE 29119-4 §7.1', quality: 'good' },
+        { id: 'ec-p9-d3', label: 'Trust the staging results', description: 'Staging shows 98% improvement. Ship it and monitor.',
+          metricDeltas: { budgetEfficiency: 8, teamMorale: 5, testCoverage: -10, riskExposure: 12, stakeholderTrust: -8 },
+          feedback: 'Staging never replicates production traffic patterns. After a £1.1M incident, more validation is mandatory.', isoRef: 'ISO/IEC/IEEE 29119-4 §7.1', quality: 'bad' },
+        { id: 'ec-p9-d4', label: 'Chaos engineering: kill services during load test', description: 'Combine load testing with random service failure injection to test resilience.',
+          metricDeltas: { testCoverage: 15, defectDetection: 18, riskExposure: -15, teamMorale: 8, budgetEfficiency: -12 },
+          feedback: 'Chaos + load testing is the ultimate confidence builder. Discovering failure modes under load is infinitely better than discovering them during Cyber Monday.', isoRef: 'ISO/IEC/IEEE 29119-4 §7.1', quality: 'best' },
+      ],
+    },
+
+    // ─── Phase 10: Release Governance ──────────────────────────────
+    {
+      phaseId: 10,
+      context: 'Load tests pass. The release board meets. The VP of Engineering wants guarantees. The CFO wants to know the financial exposure if it fails again.',
+      decisions: [
+        { id: 'ec-p10-d1', label: 'Quantified risk assessment with kill switches', description: 'Present a formal risk matrix with automated kill switches for every new feature.',
+          metricDeltas: { stakeholderTrust: 18, riskExposure: -12, testCoverage: 5, budgetEfficiency: -5, teamMorale: 8 },
+          feedback: 'Quantified risk with automated mitigation is exactly what the board needs. This demonstrates engineering maturity and business awareness.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.4', quality: 'best' },
+        { id: 'ec-p10-d2', label: 'Verbal assurance from the CTO', description: 'The CTO personally vouches for the fix and accepts responsibility.',
+          metricDeltas: { stakeholderTrust: 5, teamMorale: 3, budgetEfficiency: 5, riskExposure: 5, testCoverage: -3 },
+          feedback: 'Personal assurances are not risk management. If it fails, the CTO loses credibility and the company loses revenue.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.3', quality: 'neutral' },
+        { id: 'ec-p10-d3', label: 'Skip the board — just deploy', description: 'Governance is slowing us down. Deploy during Cyber Monday prep window.',
+          metricDeltas: { budgetEfficiency: 5, teamMorale: -5, stakeholderTrust: -15, riskExposure: 10, testCoverage: -5 },
+          feedback: 'Bypassing governance after a major incident is career-ending. The board exists to prevent exactly this kind of reckless behavior.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.3', quality: 'bad' },
+        { id: 'ec-p10-d4', label: 'Insurance-backed deployment with SLA guarantees', description: 'Pair the deployment with business interruption insurance and formal SLA commitments.',
+          metricDeltas: { stakeholderTrust: 10, riskExposure: -8, budgetEfficiency: -10, teamMorale: 5, defectDetection: 3 },
+          feedback: 'Financial hedging is smart business practice. It does not replace technical quality but protects the company from worst-case scenarios.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.4', quality: 'good' },
+      ],
+    },
+
+    // ─── Phase 11: Cyber Monday Deployment ─────────────────────────
+    {
+      phaseId: 11,
+      context: 'Board approved. Cyber Monday starts in 6 hours. Time to deploy the hardened recommendation engine and ensure the platform survives the second peak event.',
+      decisions: [
+        { id: 'ec-p11-d1', label: 'Progressive canary with real-time SLO monitoring', description: 'Deploy to 1%, 5%, 25%, 50%, 100% with automated rollback if SLO breaches occur.',
+          metricDeltas: { riskExposure: -18, testCoverage: 8, stakeholderTrust: 15, teamMorale: 10, budgetEfficiency: -5 },
+          feedback: 'Progressive deployment with SLO-based gates is the gold standard. Each stage validates before the next begins. Automated rollback removes human delay.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.4', quality: 'best' },
+        { id: 'ec-p11-d2', label: 'Full deployment with war room standby', description: 'Deploy everything at once but have the full team ready in a war room.',
+          metricDeltas: { budgetEfficiency: 3, teamMorale: -5, riskExposure: 5, stakeholderTrust: -3, testCoverage: -3 },
+          feedback: 'War rooms are reactive. Progressive deployment with automation is proactive. The best incidents are the ones that never happen.', isoRef: 'ISO/IEC/IEEE 29119-3 §9', quality: 'neutral' },
+        { id: 'ec-p11-d3', label: 'Wait until after Cyber Monday', description: 'Do not risk deploying before another peak event. Wait until next week.',
+          metricDeltas: { stakeholderTrust: -10, teamMorale: -8, riskExposure: 5, budgetEfficiency: -8, defectDetection: 3 },
+          feedback: 'Running Cyber Monday without the fix means running without recommendations — sacrificing revenue. The fix is validated; deploy with safeguards.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.4', quality: 'bad' },
+        { id: 'ec-p11-d4', label: 'A/B test: fixed engine vs no recommendations', description: 'Split traffic 50/50 between the fixed recommendation engine and no recommendations.',
+          metricDeltas: { testCoverage: 10, defectDetection: 10, riskExposure: -10, stakeholderTrust: 8, budgetEfficiency: -5 },
+          feedback: 'A/B testing in production gives the best possible real-world comparison. It also limits blast radius to 50% if something goes wrong.', isoRef: 'ISO/IEC/IEEE 29119-3 §9', quality: 'good' },
+      ],
+    },
+
+    // ─── Phase 12: Future Resilience ───────────────────────────────
+    {
+      phaseId: 12,
+      context: 'Cyber Monday was a success: £5.2M revenue, zero downtime, recommendations driving 23% of conversions. Time to make this resilience permanent.',
+      decisions: [
+        { id: 'ec-p12-d1', label: 'Build a platform reliability team (SRE)', description: 'Create a dedicated Site Reliability Engineering team focused on platform performance and resilience.',
+          metricDeltas: { riskExposure: -20, testCoverage: 15, defectDetection: 15, teamMorale: 12, budgetEfficiency: -15 },
+          feedback: 'SRE teams are the industry standard for platform reliability. Google, Netflix, and Shopify all credit SRE with their uptime achievements.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.2', quality: 'best' },
+        { id: 'ec-p12-d2', label: 'Quarterly peak-event simulation programme', description: 'Run realistic peak-traffic simulations every quarter, not just before Black Friday.',
+          metricDeltas: { testCoverage: 12, defectDetection: 12, riskExposure: -15, teamMorale: 10, budgetEfficiency: -8 },
+          feedback: 'Regular simulation prevents seasonal complacency. The team that practices peak events quarterly is never surprised by real ones.', isoRef: 'ISO/IEC/IEEE 29119-4 §7.1', quality: 'best' },
+        { id: 'ec-p12-d3', label: 'Document and archive the incident', description: 'Write a thorough post-mortem, file it, and move on to new features.',
+          metricDeltas: { budgetEfficiency: 5, teamMorale: 3, stakeholderTrust: -5, riskExposure: 5, defectDetection: -3 },
+          feedback: 'Documentation without action is theater. Post-mortems that do not drive systemic change are forgotten within weeks.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.5', quality: 'neutral' },
+        { id: 'ec-p12-d4', label: 'Cut features to save budget', description: 'Cancel the SRE team and load testing investments — the crisis is over.',
+          metricDeltas: { budgetEfficiency: 15, teamMorale: -10, riskExposure: 15, stakeholderTrust: -12, testCoverage: -10 },
+          feedback: 'The crisis being over is exactly why you invest in prevention NOW. Cutting resilience after an incident guarantees a repeat.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'bad' },
+      ],
+    },
   ],
 };

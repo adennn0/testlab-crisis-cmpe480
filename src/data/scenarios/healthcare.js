@@ -271,5 +271,173 @@ export const healthcare = {
         },
       ],
     },
+
+    // ─── Phase 7: Root Cause Deep Dive ─────────────────────────────
+    {
+      phaseId: 7,
+      context: 'The immediate patch is applied. Now the Chief Medical Information Officer wants a thorough root cause analysis. Why did the migration script ship without NULL validation?',
+      decisions: [
+        {
+          id: 'hc-p7-d1', label: 'Process audit of the release pipeline', description: 'Investigate why migration testing was insufficient and what quality gates were missing.',
+          metricDeltas: { defectDetection: 15, testCoverage: 10, teamMorale: 8, riskExposure: -12, stakeholderTrust: 8 },
+          feedback: 'Systemic process investigation is the correct approach. Individual failures are symptoms of process weaknesses.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.3', quality: 'best'
+        },
+        {
+          id: 'hc-p7-d2', label: 'Code review of all pending migrations', description: 'Review every migration script in the backlog for similar patterns.',
+          metricDeltas: { defectDetection: 12, testCoverage: 8, teamMorale: 3, riskExposure: -8, budgetEfficiency: -5 },
+          feedback: 'Good tactical move but does not address the systemic issue of why bad migrations pass review.', isoRef: 'ISO/IEC/IEEE 29119-4 §6', quality: 'good'
+        },
+        {
+          id: 'hc-p7-d3', label: 'Attribute failure to time pressure', description: 'Document that the team was rushed and request more time for future releases.',
+          metricDeltas: { teamMorale: -5, stakeholderTrust: -8, riskExposure: 5, budgetEfficiency: 5, defectDetection: -3 },
+          feedback: 'Time pressure is a contributing factor, not a root cause. This excuse prevents real learning.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'bad'
+        },
+        {
+          id: 'hc-p7-d4', label: 'Engage HIPAA compliance consultant', description: 'Bring in a HIPAA specialist to assess whether the outage constituted a reportable breach.',
+          metricDeltas: { stakeholderTrust: 10, riskExposure: -8, budgetEfficiency: -12, teamMorale: 3, defectDetection: 5 },
+          feedback: 'Proactive compliance assessment is wise in healthcare. Better to self-report than be caught unprepared.', isoRef: 'ISO/IEC/IEEE 29119-4 §7.3', quality: 'neutral'
+        },
+      ],
+    },
+
+    // ─── Phase 8: Security & Data Integrity ────────────────────────
+    {
+      phaseId: 8,
+      context: 'During the outage, 3 nurses used personal phones to photograph patient charts as a workaround. This is a potential HIPAA violation. The privacy officer needs your input.',
+      decisions: [
+        {
+          id: 'hc-p8-d1', label: 'Immediate device audit and data wipe', description: 'Confiscate devices, verify no data was shared, and securely wipe any patient photos.',
+          metricDeltas: { riskExposure: -18, stakeholderTrust: 12, teamMorale: -5, budgetEfficiency: -5, testCoverage: 3 },
+          feedback: 'Correct response. Swift action on data exposure minimizes HIPAA liability and shows organizational commitment to patient privacy.', isoRef: 'ISO/IEC/IEEE 29119-4 §7.3', quality: 'best'
+        },
+        {
+          id: 'hc-p8-d2', label: 'Document and monitor — no device seizure', description: 'Note the incident but trust the nurses to delete the photos themselves.',
+          metricDeltas: { teamMorale: 5, stakeholderTrust: -10, riskExposure: 12, budgetEfficiency: 5, defectDetection: -3 },
+          feedback: 'Trust without verification is negligence in a HIPAA context. Documented evidence of inaction amplifies regulatory risk.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'bad'
+        },
+        {
+          id: 'hc-p8-d3', label: 'Provide secure offline mobile app', description: 'Deploy an approved mobile EHR viewer for future downtime scenarios with encryption and remote wipe.',
+          metricDeltas: { testCoverage: 10, stakeholderTrust: 10, riskExposure: -12, budgetEfficiency: -10, teamMorale: 8 },
+          feedback: 'Proactive solution that addresses the root need. Clinical staff need data access during downtimes — give them a safe way to do it.', isoRef: 'ISO/IEC/IEEE 29119-3 §7.3', quality: 'good'
+        },
+        {
+          id: 'hc-p8-d4', label: 'Report to HHS Office for Civil Rights', description: 'Proactively self-report the potential breach to federal authorities.',
+          metricDeltas: { stakeholderTrust: 15, riskExposure: -10, teamMorale: -8, budgetEfficiency: -8, defectDetection: 5 },
+          feedback: 'Self-reporting shows integrity. If this constitutes a breach, early reporting significantly reduces penalties.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.5', quality: 'neutral'
+        },
+      ],
+    },
+
+    // ─── Phase 9: Clinical Verification ────────────────────────────
+    {
+      phaseId: 9,
+      context: 'The patched system is running in staging. Before restoring full clinical access, you need to verify that all medication records, allergy alerts, and vital signs are correctly displayed.',
+      decisions: [
+        {
+          id: 'hc-p9-d1', label: 'Multi-discipline clinical validation', description: 'Test with pharmacists, nurses, and physicians each verifying their specific workflows.',
+          metricDeltas: { testCoverage: 18, defectDetection: 15, stakeholderTrust: 12, riskExposure: -15, budgetEfficiency: -8 },
+          feedback: 'Each clinical role uses the EHR differently. Multi-discipline testing catches role-specific bugs that single-perspective testing misses.', isoRef: 'ISO/IEC/IEEE 29119-4 §6.9', quality: 'best'
+        },
+        {
+          id: 'hc-p9-d2', label: 'Automated data integrity checks only', description: 'Run database consistency checks to verify all records are intact.',
+          metricDeltas: { defectDetection: 8, testCoverage: 5, teamMorale: 5, riskExposure: -5, budgetEfficiency: 5 },
+          feedback: 'Data integrity checks are necessary but not sufficient. Correct data displayed incorrectly is still a patient safety hazard.', isoRef: 'ISO/IEC/IEEE 29119-4 §6', quality: 'neutral'
+        },
+        {
+          id: 'hc-p9-d3', label: 'Skip testing — clinical staff are waiting', description: 'The system looks fine. Restore access immediately to end the paper-based workaround.',
+          metricDeltas: { budgetEfficiency: 8, teamMorale: 3, testCoverage: -15, riskExposure: 18, stakeholderTrust: -10 },
+          feedback: 'Rushing a healthcare system back online without validation is negligent. If a medication allergy alert fails, the consequences are life-threatening.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.5', quality: 'bad'
+        },
+        {
+          id: 'hc-p9-d4', label: 'Parallel run: old and new systems side by side', description: 'Run both the paper workflow and digital system simultaneously for 4 hours to validate.',
+          metricDeltas: { testCoverage: 12, stakeholderTrust: 10, riskExposure: -10, budgetEfficiency: -10, teamMorale: -3 },
+          feedback: 'Parallel running is the safest validation approach but doubles workload. Worth it for safety-critical systems.', isoRef: 'ISO/IEC/IEEE 29119-3 §9', quality: 'good'
+        },
+      ],
+    },
+
+    // ─── Phase 10: Stakeholder Sign-off ────────────────────────────
+    {
+      phaseId: 10,
+      context: 'Validation complete. All clinical workflows pass. The Chief Medical Officer and CIO must jointly sign off before full restoration. They want assurance this will not happen again.',
+      decisions: [
+        {
+          id: 'hc-p10-d1', label: 'Present comprehensive test evidence package', description: 'Deliver full traceability from requirements through test results with compliance attestation.',
+          metricDeltas: { stakeholderTrust: 18, testCoverage: 5, riskExposure: -10, budgetEfficiency: -5, teamMorale: 8 },
+          feedback: 'Formal test evidence packages are the gold standard for healthcare sign-offs. Regulators require auditable proof of testing adequacy.', isoRef: 'ISO/IEC/IEEE 29119-3 §8', quality: 'best'
+        },
+        {
+          id: 'hc-p10-d2', label: 'Verbal briefing with slide deck', description: 'Present a high-level summary with charts and recommendations.',
+          metricDeltas: { stakeholderTrust: 5, teamMorale: 5, budgetEfficiency: 5, riskExposure: 3, testCoverage: -3 },
+          feedback: 'Presentations are not auditable documentation. In healthcare, sign-off must be backed by formal evidence.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.5', quality: 'neutral'
+        },
+        {
+          id: 'hc-p10-d3', label: 'Fast-track approval with verbal confirmation', description: 'Get verbal approval from both executives over the phone to speed up restoration.',
+          metricDeltas: { budgetEfficiency: 8, teamMorale: 3, stakeholderTrust: -12, riskExposure: 8, testCoverage: -5 },
+          feedback: 'Verbal approvals have no legal standing in healthcare compliance. This creates personal liability for the signing executives.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.5', quality: 'bad'
+        },
+        {
+          id: 'hc-p10-d4', label: 'Independent third-party validation', description: 'Hire an external auditor to independently verify the test results before sign-off.',
+          metricDeltas: { stakeholderTrust: 12, defectDetection: 8, riskExposure: -8, budgetEfficiency: -15, teamMorale: -3 },
+          feedback: 'Independent validation adds credibility. In regulated healthcare, external verification strengthens compliance posture significantly.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.3', quality: 'good'
+        },
+      ],
+    },
+
+    // ─── Phase 11: System Restoration ──────────────────────────────
+    {
+      phaseId: 11,
+      context: 'Joint sign-off obtained. Time to restore full EHR access across all 14 hospitals. The transition from paper back to digital must be seamless and safe.',
+      decisions: [
+        {
+          id: 'hc-p11-d1', label: 'Phased rollout by hospital with clinical liaisons', description: 'Restore access one hospital at a time with a clinical liaison at each site to catch issues.',
+          metricDeltas: { riskExposure: -18, stakeholderTrust: 15, teamMorale: 8, testCoverage: 8, budgetEfficiency: -8 },
+          feedback: 'Best practice for clinical system restoration. Phased rollout with on-site support catches environment-specific issues before they affect all hospitals.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.4', quality: 'best'
+        },
+        {
+          id: 'hc-p11-d2', label: 'Simultaneous restore across all hospitals', description: 'Flip the switch for all 14 hospitals at once during shift change.',
+          metricDeltas: { budgetEfficiency: 5, teamMorale: -3, riskExposure: 10, stakeholderTrust: -5, testCoverage: -3 },
+          feedback: 'Big-bang restoration risks simultaneous issues across all sites with insufficient support to address them.', isoRef: 'ISO/IEC/IEEE 29119-3 §9', quality: 'neutral'
+        },
+        {
+          id: 'hc-p11-d3', label: 'Keep paper workflows for 48 more hours', description: 'Continue paper-based operations for safety while monitoring the restored digital system.',
+          metricDeltas: { stakeholderTrust: -10, teamMorale: -12, riskExposure: 5, budgetEfficiency: -8, testCoverage: 3 },
+          feedback: 'Extended paper workflows increase medication error risk and clinical fatigue. The system has been validated — use it.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.4', quality: 'bad'
+        },
+        {
+          id: 'hc-p11-d4', label: 'Start with ICU and emergency departments', description: 'Prioritize the most critical departments first, then expand to general wards.',
+          metricDeltas: { riskExposure: -12, stakeholderTrust: 10, teamMorale: 5, budgetEfficiency: -3, defectDetection: 5 },
+          feedback: 'Logical prioritization. ICU and ED have the highest dependency on real-time digital records. Restoring them first maximizes patient safety impact.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.4', quality: 'good'
+        },
+      ],
+    },
+
+    // ─── Phase 12: Culture & Process Reform ────────────────────────
+    {
+      phaseId: 12,
+      context: 'All hospitals are fully restored. The incident lasted 6.5 hours. Zero patient harm reported. Now: build the culture and processes to prevent this from ever happening again.',
+      decisions: [
+        {
+          id: 'hc-p12-d1', label: 'Establish clinical-technical joint governance', description: 'Create a permanent committee of clinicians and engineers who jointly approve all EHR changes.',
+          metricDeltas: { stakeholderTrust: 20, teamMorale: 12, riskExposure: -18, defectDetection: 10, budgetEfficiency: -8 },
+          feedback: 'Transformative governance change. Clinical-technical collaboration prevents the disconnect that caused this crisis. This is healthcare IT best practice.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.2', quality: 'best'
+        },
+        {
+          id: 'hc-p12-d2', label: 'Publish incident report for the healthcare community', description: 'Share anonymized learnings with other hospitals to prevent similar incidents industry-wide.',
+          metricDeltas: { stakeholderTrust: 15, teamMorale: 10, riskExposure: -10, budgetEfficiency: -3, defectDetection: 5 },
+          feedback: 'Sharing learnings is both ethical and strategically smart. Industry collaboration on safety makes everyone safer.', isoRef: 'ISO/IEC/IEEE 29119-2 §6.5', quality: 'good'
+        },
+        {
+          id: 'hc-p12-d3', label: 'Fire the team lead responsible', description: 'Hold the QA lead accountable for the failure by terminating their position.',
+          metricDeltas: { teamMorale: -25, stakeholderTrust: -5, riskExposure: 10, budgetEfficiency: -5, defectDetection: -10 },
+          feedback: 'Blame-based accountability destroys psychological safety and drives future failures underground. Fix processes, not people.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.2', quality: 'bad'
+        },
+        {
+          id: 'hc-p12-d4', label: 'Mandatory downtime drills every quarter', description: 'Schedule quarterly exercises where clinical staff practice paper-based workflows.',
+          metricDeltas: { stakeholderTrust: 12, teamMorale: 8, riskExposure: -15, budgetEfficiency: -5, testCoverage: 8 },
+          feedback: 'Drills build muscle memory for crisis response. Hospitals that practice downtime procedures respond 3× faster during real incidents.', isoRef: 'ISO/IEC/IEEE 29119-1 §5.1', quality: 'best'
+        },
+      ],
+    },
   ],
 };

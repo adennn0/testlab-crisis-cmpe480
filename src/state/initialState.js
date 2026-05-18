@@ -80,7 +80,7 @@ export const INITIAL_STATE = {
 
   // Game progress
   currentPhase: 0,           // 0-indexed
-  totalPhases: 6,
+  totalPhases: 12,
   decisionsLog: [],          // Array of { phaseId, decisionId, label, delta, timestamp }
 
   // Metrics

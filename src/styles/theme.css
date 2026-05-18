@@ -3,68 +3,67 @@
    ============================================================ */
 
 :root {
-  /* === Base Backgrounds === */
-  --bg-void:       #050811;
-  --bg-deep:       #080d1a;
-  --bg-surface:    #0d1525;
-  --bg-card:       #111c30;
-  --bg-card-hover: #162238;
-  --bg-overlay:    rgba(5, 8, 17, 0.92);
+  /* === Base Backgrounds (Deeper/Darker) === */
+  --bg-void:       #02040a;
+  --bg-deep:       #050811;
+  --bg-surface:    #0a0f1d;
+  --bg-card:       rgba(20, 30, 50, 0.4);
+  --bg-card-hover: rgba(30, 45, 75, 0.6);
+  --bg-overlay:    rgba(2, 4, 10, 0.95);
+
+  /* === Glassmorphism === */
+  --bg-glass:      rgba(255, 255, 255, 0.03);
+  --glass-border:  rgba(255, 255, 255, 0.08);
+  --glass-blur:    blur(12px);
+  --glass-shadow:  0 8px 32px 0 rgba(0, 0, 0, 0.8);
 
   /* === Border & Dividers === */
-  --border-subtle: rgba(100, 160, 255, 0.08);
-  --border-dim:    rgba(100, 160, 255, 0.15);
-  --border-glow:   rgba(100, 160, 255, 0.35);
+  --border-subtle: rgba(100, 160, 255, 0.1);
+  --border-dim:    rgba(100, 160, 255, 0.2);
+  --border-glow:   rgba(100, 160, 255, 0.5);
 
   /* === Typography === */
-  --text-primary:   #e8f0ff;
-  --text-secondary: #8ba3cc;
-  --text-muted:     #4a6080;
-  --text-accent:    #64a0ff;
+  --text-primary:   #ffffff;
+  --text-secondary: #a0b4d8;
+  --text-muted:     #5a7090;
+  --text-accent:    #3d7fff;
 
   /* === Accent — Default (Banking) === */
   --accent-primary:   #3d7fff;
   --accent-secondary: #1a4fcc;
-  --accent-glow:      rgba(61, 127, 255, 0.4);
-  --accent-soft:      rgba(61, 127, 255, 0.12);
+  --accent-glow:      rgba(61, 127, 255, 0.6);
+  --accent-soft:      rgba(61, 127, 255, 0.15);
 
   /* === Scenario Themes === */
-  /* Banking */
   --scenario-banking-primary:   #3d7fff;
-  --scenario-banking-secondary: #0d2a6e;
-  --scenario-banking-glow:      rgba(61, 127, 255, 0.5);
-  --scenario-banking-icon:      "🏦";
+  --scenario-banking-glow:      rgba(61, 127, 255, 0.7);
+  
+  --scenario-healthcare-primary:   #00ffd4;
+  --scenario-healthcare-glow:      rgba(0, 255, 212, 0.6);
 
-  /* Healthcare */
-  --scenario-healthcare-primary:   #00d4aa;
-  --scenario-healthcare-secondary: #004d3d;
-  --scenario-healthcare-glow:      rgba(0, 212, 170, 0.5);
-
-  /* E-Commerce */
-  --scenario-ecommerce-primary:   #ff6b35;
-  --scenario-ecommerce-secondary: #5c2000;
-  --scenario-ecommerce-glow:      rgba(255, 107, 53, 0.5);
+  --scenario-ecommerce-primary:   #ff7e35;
+  --scenario-ecommerce-glow:      rgba(255, 126, 53, 0.6);
 
   /* === Metric Zones === */
   --zone-critical-bg:   rgba(255, 45, 85, 0.15);
   --zone-critical-bar:  #ff2d55;
   --zone-critical-text: #ff6b8a;
-  --zone-critical-glow: rgba(255, 45, 85, 0.5);
+  --zone-critical-glow: rgba(255, 45, 85, 0.7);
 
   --zone-warning-bg:   rgba(255, 159, 10, 0.15);
   --zone-warning-bar:  #ff9f0a;
   --zone-warning-text: #ffc554;
-  --zone-warning-glow: rgba(255, 159, 10, 0.5);
+  --zone-warning-glow: rgba(255, 159, 10, 0.7);
 
   --zone-safe-bg:   rgba(48, 209, 88, 0.12);
   --zone-safe-bar:  #30d158;
   --zone-safe-text: #5de87b;
-  --zone-safe-glow: rgba(48, 209, 88, 0.4);
+  --zone-safe-glow: rgba(48, 209, 88, 0.6);
 
   --zone-optimal-bg:   rgba(100, 160, 255, 0.12);
   --zone-optimal-bar:  #64a0ff;
   --zone-optimal-text: #a0c4ff;
-  --zone-optimal-glow: rgba(100, 160, 255, 0.4);
+  --zone-optimal-glow: rgba(100, 160, 255, 0.6);
 
   /* === Score Grades === */
   --grade-s: #ffd700;
@@ -73,46 +72,33 @@
   --grade-c: #ff9f0a;
   --grade-f: #ff2d55;
 
-  /* === Outcome Colors === */
-  --outcome-legendary: #ffd700;
-  --outcome-success:   #30d158;
-  --outcome-partial:   #ff9f0a;
-  --outcome-crisis:    #ff2d55;
-
   /* === UI Elements === */
-  --radius-sm:  6px;
-  --radius-md:  12px;
-  --radius-lg:  20px;
-  --radius-xl:  28px;
+  --radius-sm:  8px;
+  --radius-md:  16px;
+  --radius-lg:  24px;
+  --radius-xl:  32px;
   --radius-full: 9999px;
 
-  --shadow-card:   0 4px 24px rgba(0, 0, 0, 0.5), 0 1px 0 var(--border-subtle);
-  --shadow-glow:   0 0 40px var(--accent-glow);
-  --shadow-crisis: 0 0 60px rgba(255, 45, 85, 0.4);
+  --shadow-card:   0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 1px var(--glass-border);
+  --shadow-glow:   0 0 30px var(--accent-glow);
+  --shadow-neon:   0 0 15px var(--accent-primary);
 
-  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 280ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow:   450ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast:   180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 320ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* === Scenario-specific accent overrides === */
 [data-scenario="banking"] {
   --accent-primary:   var(--scenario-banking-primary);
-  --accent-secondary: var(--scenario-banking-secondary);
   --accent-glow:      var(--scenario-banking-glow);
-  --accent-soft:      rgba(61, 127, 255, 0.12);
 }
 
 [data-scenario="healthcare"] {
   --accent-primary:   var(--scenario-healthcare-primary);
-  --accent-secondary: var(--scenario-healthcare-secondary);
   --accent-glow:      var(--scenario-healthcare-glow);
-  --accent-soft:      rgba(0, 212, 170, 0.12);
 }
 
 [data-scenario="ecommerce"] {
   --accent-primary:   var(--scenario-ecommerce-primary);
-  --accent-secondary: var(--scenario-ecommerce-secondary);
   --accent-glow:      var(--scenario-ecommerce-glow);
-  --accent-soft:      rgba(255, 107, 53, 0.12);
 }
