@@ -28,6 +28,7 @@ export default function GameScreen({ state, actions }) {
     currentQuestion,
     totalQuestions,
     questionSequence,
+    questionPresentations,
     metrics,
     prevMetrics,
     feedbackVisible,
@@ -44,7 +45,18 @@ export default function GameScreen({ state, actions }) {
   } = actions;
 
   const questionId = questionSequence?.[currentQuestion];
-  const question = questionId ? QUESTION_BY_ID[questionId] : null;
+  const baseQuestion = questionId ? QUESTION_BY_ID[questionId] : null;
+  const presentation = questionId ? questionPresentations?.[questionId] : null;
+
+  const question = useMemo(() => {
+    if (!baseQuestion || !presentation) return null;
+    return {
+      ...baseQuestion,
+      options: presentation.options,
+      correctAnswer: presentation.correctAnswer,
+    };
+  }, [baseQuestion, presentation]);
+
   const incident = useMemo(() => {
     if (!question) return null;
     return INCIDENTS.find(i => i.id === question.incidentId) || null;
@@ -69,9 +81,9 @@ export default function GameScreen({ state, actions }) {
 
   const decidingDisabled = feedbackVisible || showExitConfirm;
 
-  const optionD = useMemo(() => {
+  const worstOption = useMemo(() => {
     if (!question) return null;
-    return question.options.find(o => o.letter === 'D') || null;
+    return question.options.find(o => o.quality === 'worst') || null;
   }, [question]);
 
   // ── Countdown timer callbacks ─────────────────────────────────────────────
@@ -91,10 +103,10 @@ export default function GameScreen({ state, actions }) {
   }, [decidingDisabled, setYebuer]);
 
   const handleTimerExpire = useCallback(() => {
-    if (decidingDisabled || !optionD || !question) return;
+    if (decidingDisabled || !worstOption || !question) return;
     setYebuer('sad', TIMER_TIMEOUT_MESSAGE);
-    answerQuestion(question, { ...optionD, timedOut: true }, currentQuestion, 60);
-  }, [decidingDisabled, optionD, question, answerQuestion, currentQuestion, setYebuer]);
+    answerQuestion(question, { ...worstOption, timedOut: true }, currentQuestion, 60);
+  }, [decidingDisabled, worstOption, question, answerQuestion, currentQuestion, setYebuer]);
 
   const { timeLeft, progress, urgency, isRunning, start, stop, reset } = useCountdownTimer({
     enabled:   !decidingDisabled,
@@ -260,6 +272,7 @@ export default function GameScreen({ state, actions }) {
         message={yebuerMessage}
         visible={!feedbackVisible}
         questionIndex={currentQuestion}
+        timeLeft={!feedbackVisible && !showExitConfirm ? timeLeft : null}
       />
 
       {/* Feedback modal */}

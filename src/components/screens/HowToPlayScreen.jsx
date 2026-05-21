@@ -60,11 +60,11 @@ export default function HowToPlayScreen({ onClose }) {
 
           <Section icon="🏆" title="SCORING">
             <div className="howto-list">
-              <div className="howto-li">• Best answer (A): +10 pts</div>
-              <div className="howto-li">• Good answer (B): +5 pts</div>
-              <div className="howto-li">• Poor answer (C): -5 pts</div>
-              <div className="howto-li">• Wrong answer (D): -10 pts</div>
-              <div className="howto-li">• Fast answer bonus (&lt;15s): +3 pts</div>
+              <div className="howto-li">• ✅ Best answer: +10 pts</div>
+              <div className="howto-li">• 🟡 Good answer: +5 pts</div>
+              <div className="howto-li">• 🟠 Poor answer: -5 pts</div>
+              <div className="howto-li">• ❌ Wrong answer: -10 pts</div>
+              <div className="howto-li">• ⚡ Fast answer bonus (&lt;15s): +3 pts</div>
             </div>
           </Section>
 

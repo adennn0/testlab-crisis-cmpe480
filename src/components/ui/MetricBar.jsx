@@ -1,26 +1,27 @@
 // FR-14: Metric card — supports full and compact modes
 import { useEffect, useMemo, useState } from 'react';
-import { useMetricAnimation } from '../../hooks/useMetricAnimation.js';
+import { useCountAnimation } from '../../hooks/useMetricAnimation.js';
 import { formatDelta } from '../../utils/metricHelpers.js';
 import { METRICS_CONFIG } from '../../state/initialState.js';
 
 export default function MetricBar({ metricKey, value, prevValue, flash = null, compact = false }) {
   const config = METRICS_CONFIG[metricKey];
-  const animatedValue = useMetricAnimation({ [metricKey]: value }, 700)[metricKey] ?? value;
+  const numericValue = value ?? 0;
+  const animatedValue = useCountAnimation(numericValue, 400);
   const isPositive = animatedValue > 0;
   const barColor = isPositive ? 'var(--zone-safe-bar)' : 'var(--zone-critical-bar)';
 
   const [maxAbs, setMaxAbs] = useState(() => {
-    const initial = Math.max(10, Math.abs(value ?? 0), Math.abs(prevValue ?? 0));
+    const initial = Math.max(10, Math.abs(numericValue), Math.abs(prevValue ?? 0));
     return initial;
   });
 
   useEffect(() => {
-    const next = Math.max(maxAbs, Math.abs(value ?? 0), Math.abs(prevValue ?? 0));
+    const next = Math.max(maxAbs, Math.abs(numericValue), Math.abs(prevValue ?? 0));
     if (next !== maxAbs) setMaxAbs(next);
-  }, [value, prevValue, maxAbs]);
+  }, [numericValue, prevValue, maxAbs]);
 
-  const computedDelta = useMemo(() => value - (prevValue ?? value), [value, prevValue]);
+  const computedDelta = useMemo(() => numericValue - (prevValue ?? numericValue), [numericValue, prevValue]);
   const [transientDelta, setTransientDelta] = useState(null);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function MetricBar({ metricKey, value, prevValue, flash = null, c
 
   const showDelta = transientDelta !== null;
   const delta = transientDelta ?? 0;
+  const deltaClass = delta > 0 ? 'delta-positive' : 'delta-negative';
 
   const flashClass = flash === 'increase' ? 'flash-up' : flash === 'decrease' ? 'flash-down' : '';
 
@@ -61,7 +63,9 @@ export default function MetricBar({ metricKey, value, prevValue, flash = null, c
           <span className="mc-compact-icon">{config?.icon}</span>
           <span className="mc-compact-val">
             {Math.round(animatedValue)}
-            {showDelta && <span className="mc-compact-val-delta"> ({formatDelta(delta)})</span>}
+            {showDelta && (
+              <span className={`mc-compact-val-delta ${deltaClass}`}> ({formatDelta(delta)})</span>
+            )}
           </span>
         </div>
         <div className="mc-compact-label">{config?.label}</div>
@@ -87,7 +91,9 @@ export default function MetricBar({ metricKey, value, prevValue, flash = null, c
           .mc-compact-top { display: flex; align-items: center; gap: 6px; }
           .mc-compact-icon { font-size: 0.85rem; }
           .mc-compact-val { font-family: var(--mono); font-size: 1.1rem; font-weight: 900; color: white; }
-          .mc-compact-val-delta { font-size: 0.65rem; font-weight: 900; color: var(--text-muted); }
+          .mc-compact-val-delta { font-size: 0.65rem; font-weight: 900; }
+          .mc-compact-val-delta.delta-positive { color: var(--zone-safe-text); }
+          .mc-compact-val-delta.delta-negative { color: var(--zone-critical-text); }
           .mc-compact-label { font-size: 0.55rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
           .mc-compact-bar {
             position: relative;
@@ -110,14 +116,13 @@ export default function MetricBar({ metricKey, value, prevValue, flash = null, c
             top: 0;
             bottom: 0;
             border-radius: 99px;
-            transition: left 0.7s ease, width 0.7s ease;
+            transition: left 0.4s ease, width 0.4s ease;
           }
         `}</style>
       </div>
     );
   }
 
-  // Full card mode (same as before)
   return (
     <div className={`metric-card glass-panel ${flashClass}`}>
       <div className="metric-card-top">
@@ -177,7 +182,7 @@ export default function MetricBar({ metricKey, value, prevValue, flash = null, c
           transform: translateX(-1px);
           background: rgba(255,255,255,0.25);
         }
-        .metric-mini-fill { position: absolute; top: 0; bottom: 0; border-radius: 99px; transition: left 0.7s ease, width 0.7s ease; }
+        .metric-mini-fill { position: absolute; top: 0; bottom: 0; border-radius: 99px; transition: left 0.4s ease, width 0.4s ease; }
       `}</style>
     </div>
   );

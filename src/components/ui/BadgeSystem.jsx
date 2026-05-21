@@ -136,7 +136,7 @@ function countByISO(log, partNum, quality) {
 
 function computeCorrectPct(log) {
   if (!log || log.length === 0) return 0;
-  const correct = log.filter(d => d.letter === 'A').length;
+  const correct = log.filter(d => d.correct ?? d.quality === 'best').length;
   return (correct / log.length) * 100;
 }
 

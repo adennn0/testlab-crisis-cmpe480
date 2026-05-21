@@ -132,26 +132,28 @@ export default function IntroScreen({ onSelectScenario, onResume, hasSave }) {
                     role="button"
                     tabIndex={0}
                   >
-                    <div className={`difficulty-badge difficulty-${s.difficulty.toLowerCase()}`}>{s.difficulty}</div>
                     <div className="scenario-top">
                       <div className="scenario-icon-wrap"><span className="scenario-icon">{s.icon}</span></div>
                       {last ? (
                         <div className="scenario-last">
-                          <div className="scenario-last-title">LAST RUN</div>
+                          <div className="scenario-last-title last-session-label">LAST RUN</div>
                           <div className="scenario-last-row font-mono">Score: {last.score}</div>
                           <div className="scenario-last-row font-mono">Correct: {last.correct}/{last.total}</div>
                           <div className="scenario-last-row font-mono">Time: {last.time}</div>
                         </div>
                       ) : (
                         <div className="scenario-last scenario-last-empty">
-                          <div className="scenario-last-title">LAST RUN</div>
+                          <div className="scenario-last-title last-session-label">LAST RUN</div>
                           <div className="scenario-last-row">—</div>
                         </div>
                       )}
                     </div>
 
                     <div className="scenario-body">
-                      <h2 className="scenario-title">{s.title}</h2>
+                      <div className="scenario-title-row">
+                        <h2 className="scenario-title">{s.title}</h2>
+                        <span className={`difficulty-badge difficulty-${s.difficulty.toLowerCase()}`}>{s.difficulty}</span>
+                      </div>
                       <div className="scenario-subtitle">{s.subtitle}</div>
                       <p className="scenario-desc">{s.desc}</p>
                     </div>
@@ -301,6 +303,7 @@ export default function IntroScreen({ onSelectScenario, onResume, hasSave }) {
           flex-direction: column;
           gap: 12px;
           padding: 24px;
+          padding-top: 20px;
           border-radius: 12px;
           background: var(--bg-glass);
           border: 1px solid var(--glass-border);
@@ -315,16 +318,24 @@ export default function IntroScreen({ onSelectScenario, onResume, hasSave }) {
           border-color: var(--accent-primary);
           box-shadow: var(--glass-shadow);
         }
+        .scenario-title-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
+        }
         .difficulty-badge {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          padding: 4px 10px;
-          border-radius: 4px;
+          flex-shrink: 0;
+          z-index: 2;
+          padding: 4px 12px;
+          border-radius: 6px;
           font-size: 11px;
           font-weight: 800;
-          letter-spacing: 1px;
+          letter-spacing: 1.5px;
           text-transform: uppercase;
+        }
+        .last-session-label {
+          display: none;
         }
         .difficulty-easy {
           background: color-mix(in srgb, var(--zone-safe-bg) 70%, transparent);
@@ -370,7 +381,10 @@ export default function IntroScreen({ onSelectScenario, onResume, hasSave }) {
 
         .scenario-title {
           margin: 0;
-          padding-right: 80px;
+          margin-top: 0;
+          flex: 1;
+          min-width: 0;
+          padding-right: 0;
           font-size: 20px;
           font-weight: 900;
           color: white;

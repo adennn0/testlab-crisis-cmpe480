@@ -1,5 +1,6 @@
 // Yebuer — the game mascot (like Duolingo owl but unique)
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import YebuerMascot, { timerMoodFromTimeLeft, moodToDisplayMood } from './YebuerMascot.jsx';
 
 const YEBUER_MOODS = {
   happy: { face: '😊', body: '🟢', anim: 'yebuer-bounce' },
@@ -55,7 +56,7 @@ const NEUTRAL_REACTIONS = [
   "Acceptable. The review board will have... thoughts.",
 ];
 
-export default function Yebuer({ mood = 'neutral', message = null, visible = true, questionIndex = 0 }) {
+export default function Yebuer({ mood = 'neutral', message = null, visible = true, questionIndex = 0, timeLeft = null }) {
   const [showBubble, setShowBubble] = useState(!!message);
   const [currentMessage, setCurrentMessage] = useState(message);
   const [position, setPosition] = useState(CORNER_POSITIONS[0]);
@@ -76,6 +77,13 @@ export default function Yebuer({ mood = 'neutral', message = null, visible = tru
 
   const moodData = YEBUER_MOODS[mood] || YEBUER_MOODS.neutral;
 
+  const mascotMood = useMemo(() => {
+    if (timeLeft != null && !Number.isNaN(timeLeft)) {
+      return timerMoodFromTimeLeft(timeLeft);
+    }
+    return moodToDisplayMood(mood);
+  }, [timeLeft, mood]);
+
   if (!visible) return null;
 
   return (
@@ -88,77 +96,7 @@ export default function Yebuer({ mood = 'neutral', message = null, visible = tru
       )}
 
       <div className={`yebuer-body ${mood === 'sad' || mood === 'angry' ? 'yebuer-sad' : ''} ${mood === 'excited' || mood === 'happy' ? 'yebuer-happy' : ''}`}>
-        {/* Yebuer SVG Character */}
-        <svg viewBox="0 0 120 140" className="yebuer-svg" xmlns="http://www.w3.org/2000/svg">
-          {/* Body */}
-          <ellipse cx="60" cy="90" rx="40" ry="45" fill="#4FC3F7" stroke="#0288D1" strokeWidth="2" />
-          {/* Belly */}
-          <ellipse cx="60" cy="100" rx="28" ry="30" fill="#B3E5FC" opacity="0.6" />
-          {/* Head */}
-          <circle cx="60" cy="45" r="30" fill="#4FC3F7" stroke="#0288D1" strokeWidth="2" />
-          {/* Left eye */}
-          <ellipse cx="48" cy="40" rx="8" ry="9" fill="white" />
-          <circle cx="50" cy="40" r="5" fill="#1a1a2e" />
-          <circle cx="52" cy="38" r="2" fill="white" />
-          {/* Right eye */}
-          <ellipse cx="72" cy="40" rx="8" ry="9" fill="white" />
-          <circle cx="70" cy="40" r="5" fill="#1a1a2e" />
-          <circle cx="72" cy="38" r="2" fill="white" />
-
-          {/* Mouth - changes by mood */}
-          {(mood === 'happy' || mood === 'excited' || mood === 'wink') && (
-            <path d="M 45 55 Q 60 68 75 55" stroke="#1a1a2e" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          )}
-          {(mood === 'sad' || mood === 'angry') && (
-            <path d="M 45 60 Q 60 50 75 60" stroke="#1a1a2e" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          )}
-          {(mood === 'neutral' || mood === 'thinking') && (
-            <line x1="47" y1="57" x2="73" y2="57" stroke="#1a1a2e" strokeWidth="2.5" strokeLinecap="round" />
-          )}
-
-          {/* Wink eye override */}
-          {mood === 'wink' && (
-            <line x1="65" y1="40" x2="78" y2="40" stroke="#1a1a2e" strokeWidth="2.5" strokeLinecap="round" />
-          )}
-
-          {/* Sad tears */}
-          {mood === 'sad' && (
-            <>
-              <circle cx="45" cy="50" r="3" fill="#2196F3" opacity="0.7" className="tear-drop" />
-              <circle cx="78" cy="50" r="3" fill="#2196F3" opacity="0.7" className="tear-drop-2" />
-            </>
-          )}
-
-          {/* Angry eyebrows */}
-          {mood === 'angry' && (
-            <>
-              <line x1="40" y1="30" x2="55" y2="33" stroke="#1a1a2e" strokeWidth="3" strokeLinecap="round" />
-              <line x1="80" y1="30" x2="65" y2="33" stroke="#1a1a2e" strokeWidth="3" strokeLinecap="round" />
-            </>
-          )}
-
-          {/* Excited sparkles */}
-          {mood === 'excited' && (
-            <>
-              <text x="15" y="25" fontSize="12" className="sparkle-1">✨</text>
-              <text x="90" y="20" fontSize="12" className="sparkle-2">⭐</text>
-              <text x="95" y="85" fontSize="10" className="sparkle-3">✨</text>
-            </>
-          )}
-
-          {/* Left arm */}
-          <ellipse cx="22" cy="85" rx="10" ry="14" fill="#4FC3F7" stroke="#0288D1" strokeWidth="1.5" />
-          {/* Right arm */}
-          <ellipse cx="98" cy="85" rx="10" ry="14" fill="#4FC3F7" stroke="#0288D1" strokeWidth="1.5" />
-
-          {/* Crown/hat (small cute detail) */}
-          <path d="M 42 18 L 48 8 L 54 15 L 60 5 L 66 15 L 72 8 L 78 18" fill="#FFD700" stroke="#FFA000" strokeWidth="1" />
-          
-          {/* Feet */}
-          <ellipse cx="45" cy="132" rx="12" ry="6" fill="#0288D1" />
-          <ellipse cx="75" cy="132" rx="12" ry="6" fill="#0288D1" />
-        </svg>
-
+        <YebuerMascot mood={mascotMood} />
         <div className="yebuer-name">YEBUER</div>
       </div>
 
@@ -178,7 +116,7 @@ export default function Yebuer({ mood = 'neutral', message = null, visible = tru
         .yebuer-happy { filter: drop-shadow(0 4px 16px rgba(76, 175, 80, 0.6)); }
         .yebuer-sad { filter: drop-shadow(0 4px 16px rgba(244, 67, 54, 0.5)); }
 
-        .yebuer-svg { width: 80px; height: 93px; }
+        .yebuer-mascot-svg { display: block; filter: drop-shadow(0 4px 12px rgba(99,179,237,0.4)); }
 
         .yebuer-name {
           font-size: 0.55rem; font-weight: 900; color: var(--accent-primary);

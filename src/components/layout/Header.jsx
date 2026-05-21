@@ -40,9 +40,15 @@ export default function Header({
       </div>
 
       <div className="game-header-right">
-        <div className="header-right-stack">
-          <div className="header-time font-mono">Total Time: {totalTimeLabel}</div>
-          <div className="header-score font-mono">Score: {score ?? 0}</div>
+        <div className="header-stats-container">
+          <div className="header-stat-block">
+            <span className="header-stat-label">Total Time</span>
+            <span className="header-stat font-mono">{totalTimeLabel}</span>
+          </div>
+          <div className="header-stat-block">
+            <span className="header-stat-label">Score</span>
+            <span className="header-stat font-mono">{score ?? 0}</span>
+          </div>
           <button className="header-exit" onClick={onExit}>🚪 Exit Game</button>
         </div>
       </div>
@@ -87,19 +93,29 @@ export default function Header({
           font-size: 0.6rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.1em;
         }
 
-        .header-right-stack { display: flex; align-items: center; gap: 12px; }
-        .header-time {
-          font-size: 0.7rem;
-          color: var(--text-muted);
-          font-weight: 800;
-          letter-spacing: 0.06em;
-          white-space: nowrap;
+        .header-stats-container {
+          display: flex;
+          gap: 24px;
+          align-items: center;
         }
-        .header-score {
-          font-size: 0.7rem;
-          color: var(--text-muted);
-          font-weight: 900;
-          letter-spacing: 0.06em;
+        .header-stat-block {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 2px;
+        }
+        .header-stat-label {
+          font-size: 11px;
+          color: #888;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-weight: 700;
+        }
+        .header-stat {
+          font-size: 18px;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: 0.5px;
           white-space: nowrap;
         }
         .header-exit {

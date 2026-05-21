@@ -31,8 +31,8 @@ export default function MetricPanel({ metrics, prevMetrics, horizontal = false }
           <MetricBar
             key={key}
             metricKey={key}
-            value={metrics[key]}
-            prevValue={prevMetrics?.[key]}
+            value={metrics?.[key] ?? 0}
+            prevValue={prevMetrics?.[key] ?? 0}
             flash={flashState?.[key] || null}
             compact={horizontal}
           />

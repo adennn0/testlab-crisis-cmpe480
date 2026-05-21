@@ -87,7 +87,8 @@ export const INITIAL_STATE = {
   currentQuestion: 0,        // 0-indexed (0..29)
   totalQuestions: 30,
   questionSequence: [],      // Array of question IDs in play order
-  decisionsLog: [],          // Array of { questionNumber, questionId, letter, quality, isoRef, section, title, incidentId, timedOut, metricDeltas, timestamp }
+  questionPresentations: {}, // { [questionId]: { options, correctAnswer } } — shuffled per playthrough
+  decisionsLog: [],          // Array of { questionNumber, questionId, letter, quality, correct, isoRef, section, title, incidentId, timedOut, metricDeltas, timestamp }
 
   // Metrics
   metrics: { ...INITIAL_METRICS },

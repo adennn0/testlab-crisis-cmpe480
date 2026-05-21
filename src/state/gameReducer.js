@@ -2,7 +2,8 @@
 
 import { INITIAL_STATE, INITIAL_METRICS } from './initialState.js';
 import { applyDeltas } from '../utils/metricHelpers.js';
-import { QUESTION_BANK, INCIDENTS } from '../data/iso29119QuestionBank.js';
+import { buildQuestionPresentations } from '../utils/questionPresentation.js';
+import { QUESTION_BANK, QUESTION_BY_ID, INCIDENTS } from '../data/iso29119QuestionBank.js';
 
 const QUESTIONS_PER_INCIDENT = 30;
 
@@ -49,13 +50,11 @@ function buildQuestionSequenceForScenario(scenarioId) {
 
 function scoreDeltaForOption(option, secondsUsed) {
   if (option?.timedOut) return -10;
-  const letter = option?.letter;
   const base =
-    letter === 'A' ? 10 :
-    letter === 'B' ? 5 :
-    letter === 'C' ? -5 :
-    letter === 'D' ? -10 :
-    (option?.quality === 'best' ? 10 : option?.quality === 'good' ? 5 : option?.quality === 'poor' ? -5 : -10);
+    option?.quality === 'best' ? 10 :
+    option?.quality === 'good' ? 5 :
+    option?.quality === 'poor' ? -5 :
+    -10;
   const bonus = typeof secondsUsed === 'number' && secondsUsed < 15 ? 3 : 0;
   return base + bonus;
 }
@@ -82,6 +81,7 @@ export function gameReducer(state, action) {
       {
         const scenarioId = action.payload?.scenarioId;
         const questionSequence = buildQuestionSequenceForScenario(scenarioId);
+        const questionPresentations = buildQuestionPresentations(questionSequence, QUESTION_BY_ID);
         return {
           ...INITIAL_STATE,
           screen: 'game',
@@ -92,6 +92,7 @@ export function gameReducer(state, action) {
           startedAt: Date.now(),
           completedAt: null,
           questionSequence,
+          questionPresentations,
           lastSummary: state.lastSummary ?? null,
         };
       }
@@ -101,13 +102,19 @@ export function gameReducer(state, action) {
 
       const metricDeltas = option?.metricDeltas || {};
       const newMetrics = applyDeltas(state.metrics, metricDeltas);
-      const isCorrect = option.letter === 'A';
+      const correctAnswer = state.questionPresentations?.[question.id]?.correctAnswer;
+      const isCorrect =
+        correctAnswer != null
+          ? option.letter === correctAnswer
+          : option.quality === 'best';
       const scoreDelta = scoreDeltaForOption(option, secondsUsed);
       const logEntry = {
         questionNumber: questionIndex + 1,
         questionId: question.id,
         letter: option.letter,
         quality: option.quality,
+        correct: isCorrect,
+        correctAnswer: correctAnswer ?? null,
         isoRef: option.isoRef,
         section: question.section,
         title: question.title,
@@ -190,11 +197,17 @@ export function gameReducer(state, action) {
 
     case ACTIONS.LOAD_SAVE: {
       const { saved } = action.payload;
+      const loaded = saved.state;
+      let questionPresentations = loaded.questionPresentations;
+      if (!questionPresentations && loaded.questionSequence?.length) {
+        questionPresentations = buildQuestionPresentations(loaded.questionSequence, QUESTION_BY_ID);
+      }
       return {
         ...INITIAL_STATE,
-        ...saved.state,
+        ...loaded,
         screen: 'game',
-        prevMetrics: saved.state.prevMetrics || saved.state.metrics,
+        questionPresentations: questionPresentations || {},
+        prevMetrics: loaded.prevMetrics || loaded.metrics,
       };
     }
 

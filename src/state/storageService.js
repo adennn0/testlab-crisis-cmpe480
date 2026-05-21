@@ -7,13 +7,14 @@ export const storageService = {
   save(state) {
     try {
       const saveData = {
-        version: 4,
+        version: 5,
         savedAt: Date.now(),
         state: {
           scenarioId:     state.scenarioId,
           currentQuestion: state.currentQuestion,
           totalQuestions: state.totalQuestions,
           questionSequence: state.questionSequence,
+          questionPresentations: state.questionPresentations,
           decisionsLog:   state.decisionsLog,
           metrics:        state.metrics,
           prevMetrics:    state.prevMetrics,
@@ -35,7 +36,7 @@ export const storageService = {
       const raw = localStorage.getItem(SAVE_KEY);
       if (!raw) return null;
       const data = JSON.parse(raw);
-      if (data.version !== 4) return null;
+      if (data.version !== 5) return null;
       return data;
     } catch {
       return null;

@@ -44,7 +44,7 @@ export default function ResultScreen({
     const rows = new Map();
     for (const entry of (decisionsLog || [])) {
       const key = getConceptKey(entry);
-      const correct = entry.letter === 'A';
+      const correct = entry.correct ?? entry.quality === 'best';
       const prev = rows.get(key) || { key, total: 0, correct: 0 };
       rows.set(key, { ...prev, total: prev.total + 1, correct: prev.correct + (correct ? 1 : 0) });
     }
