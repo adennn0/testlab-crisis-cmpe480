@@ -1,188 +1,256 @@
-// Main game screen — 2x2 decision grid, Yebuer mascot, metrics on top
-import { useEffect, useState, useCallback } from 'react';
-import { banking } from '../../data/scenarios/banking.js';
-import { healthcare } from '../../data/scenarios/healthcare.js';
-import { ecommerce } from '../../data/scenarios/ecommerce.js';
-import { CRISIS_EVENTS } from '../../data/crisisEvents.js';
-import { PHASES } from '../../data/phases.js';
+// Main game screen — strict ISO/IEC/IEEE 29119 question engine
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import GameLayout from '../layout/GameLayout.jsx';
 import Header from '../layout/Header.jsx';
-import PhaseHeader from '../ui/PhaseHeader.jsx';
 import FeedbackModal from './FeedbackModal.jsx';
-import CrisisPopup from './CrisisPopup.jsx';
+import ISOBadge from '../ui/ISOBadge.jsx';
+import CountdownTimer from '../ui/CountdownTimer.jsx';
+import { GlossaryText } from '../ui/GlossaryTooltip.jsx';
 import Yebuer, { GOOD_REACTIONS, BAD_REACTIONS, NEUTRAL_REACTIONS, IDLE_QUOTES } from '../ui/Yebuer.jsx';
+import { useCountdownTimer } from '../../hooks/useCountdownTimer.js';
+import { INCIDENTS, TOTAL_QUESTIONS, QUESTION_BY_ID } from '../../data/iso29119QuestionBank.js';
+import { storageService } from '../../state/storageService.js';
 
-const SCENARIO_MAP = { banking, healthcare, ecommerce };
-const SCENARIO_META = {
-  banking:    { name: 'Core Banking Meltdown', icon: '🏦' },
-  healthcare: { name: 'EHR System Meltdown',   icon: '🏥' },
-  ecommerce:  { name: 'Black Friday Collapse',  icon: '🛒' },
-};
+const TIMER_45_MESSAGE = "You've got 45 seconds left — think fast!";
+const TIMER_20_MESSAGE = 'Hurry! Only 20 seconds left! ⚡';
+const TIMER_10_MESSAGE = '10 SECONDS! DECIDE NOW! 🚨';
+const TIMER_TIMEOUT_MESSAGE = 'TIMEOUT! Auto-selecting protocol D.';
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function formatTimeLabel(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const s = String(totalSec % 60).padStart(2, '0');
+  return `${m}:${s}`;
 }
 
 export default function GameScreen({ state, actions }) {
   const {
-    scenarioId, currentPhase, metrics, prevMetrics,
-    decisionsLog, score, feedbackVisible, lastDecision,
-    crisisActive, crisisEventId, crisisResolved,
+    currentQuestion,
+    totalQuestions,
+    questionSequence,
+    metrics,
+    prevMetrics,
+    feedbackVisible,
+    lastDecision,
+    startedAt,
+    score,
   } = state;
 
   const {
-    makeDecision, closeFeedback, triggerCrisis,
-    resolveCrisis, advancePhase,
+    answerQuestion,
+    closeFeedback,
+    nextQuestion,
+    exitGame,
   } = actions;
 
-  const scenario = SCENARIO_MAP[scenarioId];
-  const meta = SCENARIO_META[scenarioId] || {};
-  const phaseData = scenario?.phases[currentPhase];
-  const phaseInfo = PHASES[currentPhase];
+  const questionId = questionSequence?.[currentQuestion];
+  const question = questionId ? QUESTION_BY_ID[questionId] : null;
+  const incident = useMemo(() => {
+    if (!question) return null;
+    return INCIDENTS.find(i => i.id === question.incidentId) || null;
+  }, [question]);
 
-  // Yebuer state
-  const [yebuerMood, setYebuerMood] = useState('wink');
-  const [yebuerMessage, setYebuerMessage] = useState("Hi there! I'm Yebuer! 🎉 Let's tackle this crisis together. Pick your best response!");
-  const [yebuerKey, setYebuerKey] = useState(0);
+  const questionNumber = currentQuestion + 1;
+  const total = totalQuestions || TOTAL_QUESTIONS;
 
-  // Crisis event lookup
-  const crisisEvent = crisisActive && crisisEventId
-    ? (CRISIS_EVENTS[scenarioId] || []).find((e) => e.id === crisisEventId)
-    : null;
+  // ── Yebuer state ─────────────────────────────────────────────────────────
+  const [yebuerMood,    setYebuerMood]    = useState('wink');
+  const [yebuerMessage, setYebuerMessage] = useState("Hi! I'm Yebuer 🎉 Let's tackle this crisis together! Pick your response protocol!");
+  const [yebuerKey,     setYebuerKey]     = useState(0);
 
-  // Auto-trigger crisis events
-  const [crisisTriggered, setCrisisTriggered] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [nowMs, setNowMs] = useState(Date.now());
+
+  const setYebuer = useCallback((mood, message) => {
+    setYebuerMood(mood);
+    setYebuerMessage(message);
+    setYebuerKey(k => k + 1);
+  }, []);
+
+  const decidingDisabled = feedbackVisible || showExitConfirm;
+
+  const optionD = useMemo(() => {
+    if (!question) return null;
+    return question.options.find(o => o.letter === 'D') || null;
+  }, [question]);
+
+  // ── Countdown timer callbacks ─────────────────────────────────────────────
+  const handleTick45 = useCallback(() => {
+    if (decidingDisabled) return;
+    setYebuer('thinking', TIMER_45_MESSAGE);
+  }, [decidingDisabled, setYebuer]);
+
+  const handleTick20 = useCallback(() => {
+    if (decidingDisabled) return;
+    setYebuer('thinking', TIMER_20_MESSAGE);
+  }, [decidingDisabled, setYebuer]);
+
+  const handleTick10 = useCallback(() => {
+    if (decidingDisabled) return;
+    setYebuer('angry', TIMER_10_MESSAGE);
+  }, [decidingDisabled, setYebuer]);
+
+  const handleTimerExpire = useCallback(() => {
+    if (decidingDisabled || !optionD || !question) return;
+    setYebuer('sad', TIMER_TIMEOUT_MESSAGE);
+    answerQuestion(question, { ...optionD, timedOut: true }, currentQuestion, 60);
+  }, [decidingDisabled, optionD, question, answerQuestion, currentQuestion, setYebuer]);
+
+  const { timeLeft, progress, urgency, isRunning, start, stop, reset } = useCountdownTimer({
+    enabled:   !decidingDisabled,
+    onTick45:  handleTick45,
+    onTick20:  handleTick20,
+    onTick10:  handleTick10,
+    onExpire:  handleTimerExpire,
+  });
+
+  // Start timer when a new question loads
   useEffect(() => {
-    if (!phaseInfo?.hasCrisisEvent || crisisActive || crisisTriggered || !scenarioId) return;
-    const events = CRISIS_EVENTS[scenarioId] || [];
-    const event = events.find(
-      (e) => e.triggerPhase === currentPhase + 1 && !crisisResolved.includes(e.id)
-    );
-    if (event && decisionsLog.filter((d) => d.phaseId === currentPhase + 1 && !d.isCrisis).length >= 1) {
-      setCrisisTriggered(true);
-      triggerCrisis(event.id);
-    }
-  }, [decisionsLog, phaseInfo, crisisActive, crisisTriggered, scenarioId, currentPhase, crisisResolved, triggerCrisis]);
-
-  useEffect(() => {
-    setCrisisTriggered(false);
-  }, [currentPhase]);
-
-  // Update Yebuer on phase change
-  useEffect(() => {
-    if (currentPhase === 0) {
-      setYebuerMood('wink');
-      setYebuerMessage("Hi! I'm Yebuer! 🎉 Let's tackle this crisis together!");
+    if (!feedbackVisible && !showExitConfirm) {
+      reset();
+      start();
     } else {
-      setYebuerMood('thinking');
-      setYebuerMessage(pickRandom(IDLE_QUOTES));
+      stop();
     }
-    setYebuerKey(prev => prev + 1);
-  }, [currentPhase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestion, feedbackVisible, showExitConfirm]);
 
-  const handleDecision = useCallback((decision) => {
-    makeDecision(decision, currentPhase);
-    
-    // Yebuer reacts based on decision quality
-    const quality = decision.quality;
-    if (quality === 'best' || quality === 'good') {
-      setYebuerMood('excited');
-      setYebuerMessage(pickRandom(GOOD_REACTIONS));
-    } else if (quality === 'bad') {
-      setYebuerMood('sad');
-      setYebuerMessage(pickRandom(BAD_REACTIONS));
-    } else {
-      setYebuerMood('thinking');
-      setYebuerMessage(pickRandom(NEUTRAL_REACTIONS));
+  // ── Yebuer on incident/question change ─────────────────────────────────────
+  useEffect(() => {
+    if (!question) return;
+
+    const isScenarioStart = currentQuestion === 0;
+    if (isScenarioStart && incident?.intro) {
+      setYebuer('excited', incident.intro);
+      return;
     }
-    setYebuerKey(prev => prev + 1);
-  }, [makeDecision, currentPhase]);
+
+    if (currentQuestion === 0) {
+      setYebuer('wink', "Hi! I'm Yebuer 🎉 Let's tackle this crisis together!");
+      return;
+    }
+
+    setYebuer('thinking', IDLE_QUOTES[currentQuestion % IDLE_QUOTES.length]);
+  }, [currentQuestion, question, incident, setYebuer]);
+
+  // Total time ticker
+  useEffect(() => {
+    if (!startedAt) return;
+    const t = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [startedAt]);
+
+  const totalTimeLabel = useMemo(() => {
+    const elapsed = startedAt ? nowMs - startedAt : 0;
+    return formatTimeLabel(elapsed);
+  }, [startedAt, nowMs]);
+
+  const handleDecision = useCallback((opt) => {
+    if (!question) return;
+    stop();
+    const secondsUsed = 60 - (timeLeft ?? 60);
+    answerQuestion(question, opt, currentQuestion, secondsUsed);
+
+    const q = opt.quality;
+    if (q === 'best' || q === 'good') {
+      setYebuer('excited', GOOD_REACTIONS[currentQuestion % GOOD_REACTIONS.length]);
+    } else if (q === 'worst') {
+      setYebuer('sad', BAD_REACTIONS[currentQuestion % BAD_REACTIONS.length]);
+    } else {
+      setYebuer('thinking', NEUTRAL_REACTIONS[currentQuestion % NEUTRAL_REACTIONS.length]);
+    }
+  }, [answerQuestion, currentQuestion, question, stop, setYebuer, timeLeft]);
 
   const handleFeedbackClose = () => {
     closeFeedback();
-    if (lastDecision && !lastDecision.isCrisis) {
-      advancePhase();
-    }
+    nextQuestion();
   };
 
-  const handleCrisisResolve = (option) => {
-    resolveCrisis(option);
+  const handleExitConfirm = () => {
+    storageService.clear();
+    exitGame();
   };
 
-  const handleCrisisFeedbackClose = () => {
-    closeFeedback();
-  };
-
-  if (!scenario || !phaseData) return null;
-
-  const phaseDecisions = phaseData.decisions || [];
-  // Ensure we always have exactly 4 decisions for a 2x2 grid
-  const gridDecisions = phaseDecisions.slice(0, 4);
-  
-  const phaseDecisionsMade = decisionsLog.filter(
-    (d) => d.phaseId === currentPhase + 1 && !d.isCrisis
-  );
-  const phaseComplete = phaseDecisionsMade.length >= 1;
-  const decidingDisabled = phaseComplete || feedbackVisible || crisisActive;
+  if (!question) return null;
 
   return (
-    <div className="game-screen-wrap" data-scenario={scenarioId}>
+    <div className="game-screen-wrap">
       <Header
-        scenarioId={scenarioId}
-        scenarioName={meta.name}
-        scenarioIcon={meta.icon}
+        incidentName={incident?.name}
+        questionNumber={questionNumber}
+        totalQuestions={total}
+        totalTimeLabel={totalTimeLabel}
         score={score}
-        currentPhase={currentPhase}
-        totalPhases={scenario.phases.length}
+        onExit={() => setShowExitConfirm(true)}
       />
       <GameLayout metrics={metrics} prevMetrics={prevMetrics}>
-        {/* Phase context */}
-        <PhaseHeader 
-          currentPhase={currentPhase} 
-          totalPhases={scenario.phases.length} 
-          scenarioName={meta.name}
-        />
+
+        {/* ISO reference */}
+        <div className="gs-meta-row">
+          <ISOBadge isoRef={question.isoRef} />
+        </div>
+
+        {/* ISO term definition */}
+        <div className="gs-definition glass-panel">
+          <div className="gs-definition-badge">ISO TERM DEFINITION</div>
+          <p className="gs-definition-text">
+            <GlossaryText text={question.definition} />
+          </p>
+        </div>
 
         {/* Situation briefing */}
         <div className="gs-context glass-panel">
-          <div className="gs-context-badge">📡 SITUATION BRIEFING — QUESTION {currentPhase + 1}/{scenario.phases.length}</div>
-          <p className="gs-context-text">{phaseData.context}</p>
+          <div className="gs-context-top">
+            <div className="gs-context-badge">
+              📡 SITUATION BRIEFING — QUESTION {questionNumber}/{total}
+            </div>
+            {/* Countdown timer — only shown while decision is pending */}
+            {!feedbackVisible && !showExitConfirm && (
+              <div className="gs-timer-wrap">
+                <CountdownTimer
+                  timeLeft={timeLeft}
+                  progress={progress}
+                  urgency={urgency}
+                  isRunning={isRunning}
+                />
+                <div className="gs-timer-label" style={{
+                  color: urgency === 'critical' ? '#ff2d55' : urgency === 'warning' ? '#ff9f0a' : '#5a7090'
+                }}>
+                  {urgency === 'critical' ? 'HURRY!' : urgency === 'warning' ? 'TICK TOCK' : 'SEC LEFT'}
+                </div>
+              </div>
+            )}
+          </div>
+          <p className="gs-context-text">
+            <GlossaryText text={question.situation} />
+          </p>
         </div>
 
-        {/* 2x2 Decision Grid */}
+        {/* 2×2 Decision Grid */}
         <div className="gs-decisions-section">
           <div className="gs-decisions-label">
             SELECT RESPONSE PROTOCOL
-            {phaseComplete && (
-              <span className="gs-done-badge">✓ LOGGED</span>
-            )}
           </div>
           <div className="gs-decisions-grid-2x2">
-            {gridDecisions.map((d, i) => (
-              <button 
-                key={d.id}
-                className={`gs-decision-tile glass-card ${decidingDisabled ? 'disabled' : ''}`}
-                onClick={() => !decidingDisabled && handleDecision(d)}
-                disabled={decidingDisabled}
-              >
-                <div className="tile-letter">{String.fromCharCode(65 + i)}</div>
-                <div className="tile-content">
-                  <h4 className="tile-label">{d.label}</h4>
-                  <p className="tile-desc">{d.description}</p>
-                </div>
-              </button>
-            ))}
+            {question.options.map((opt, idx) => {
+              return (
+                <button
+                  key={opt.letter}
+                  id={`decision-${opt.letter}`}
+                  className={`gs-decision-tile glass-card ${decidingDisabled ? 'disabled' : ''}`}
+                  onClick={() => !decidingDisabled && handleDecision(opt)}
+                  disabled={decidingDisabled}
+                >
+                  <div className="tile-letter">{opt.letter}</div>
+                  <div className="tile-content">
+                    <h4 className="tile-label">{opt.label}</h4>
+                    <p className="tile-desc">{opt.description}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
-
-        {/* Advance Button */}
-        {phaseComplete && !feedbackVisible && !crisisActive && (
-          <div className="gs-advance-wrap anim-fade-in">
-            <button className="gs-advance-btn" onClick={advancePhase}>
-              {currentPhase >= scenario.phases.length - 1 ? '🏁 COMPLETE SIMULATION' : `PROCEED TO QUESTION ${currentPhase + 2} →`}
-            </button>
-          </div>
-        )}
       </GameLayout>
 
       {/* Yebuer Mascot */}
@@ -191,34 +259,78 @@ export default function GameScreen({ state, actions }) {
         mood={yebuerMood}
         message={yebuerMessage}
         visible={!feedbackVisible}
-        questionIndex={currentPhase}
+        questionIndex={currentQuestion}
       />
 
       {/* Feedback modal */}
-      {feedbackVisible && lastDecision && !lastDecision.isCrisis && (
-        <FeedbackModal decision={lastDecision} onClose={handleFeedbackClose} isCrisis={false} />
-      )}
-      {feedbackVisible && lastDecision?.isCrisis && (
-        <FeedbackModal decision={lastDecision} onClose={handleCrisisFeedbackClose} isCrisis />
+      {feedbackVisible && lastDecision && (
+        <FeedbackModal decision={lastDecision} onClose={handleFeedbackClose} />
       )}
 
-      {/* Crisis popup */}
-      {crisisActive && crisisEvent && !feedbackVisible && (
-        <CrisisPopup event={crisisEvent} onResolve={handleCrisisResolve} />
+      {/* Exit confirmation */}
+      {showExitConfirm && (
+        <div className="exit-backdrop" role="dialog" aria-modal="true" onClick={() => setShowExitConfirm(false)}>
+          <div className="exit-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="exit-title">🚪 Exit Game</div>
+            <div className="exit-body">Are you sure? Your progress will be lost.</div>
+            <div className="exit-actions">
+              <button className="exit-btn exit-cancel" onClick={() => setShowExitConfirm(false)}>No</button>
+              <button className="exit-btn exit-confirm" onClick={handleExitConfirm}>Yes</button>
+            </div>
+          </div>
+        </div>
       )}
 
       <style>{`
         .game-screen-wrap { position: relative; min-height: 100vh; background: var(--bg-void); }
 
-        .gs-context {
-          padding: 20px 24px; display: flex; flex-direction: column; gap: 10px;
+        /* Meta row */
+        .gs-meta-row {
+          display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+          flex-wrap: wrap;
         }
-        .gs-context-badge {
-          font-size: 0.6rem; font-weight: 900; color: var(--accent-primary);
+        .gs-meta-row > :first-child { flex: 1; min-width: 0; }
+
+        .gs-definition {
+          padding: 18px 22px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .gs-definition-badge {
+          font-size: 0.6rem;
+          font-weight: 900;
+          color: var(--text-muted);
           letter-spacing: 0.15em;
         }
-        .gs-context-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
+        .gs-definition-text {
+          font-size: 0.88rem;
+          color: var(--text-secondary);
+          line-height: 1.7;
+          margin: 0;
+        }
 
+        /* Situation briefing */
+        .gs-context {
+          padding: 20px 24px; display: flex; flex-direction: column; gap: 14px;
+        }
+        .gs-context-top {
+          display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+        }
+        .gs-context-badge {
+          font-size: 0.6rem; font-weight: 900; color: var(--accent-primary); letter-spacing: 0.15em;
+        }
+        .gs-timer-wrap {
+          display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;
+        }
+        .gs-timer-label {
+          font-size: 0.5rem; font-weight: 900; letter-spacing: 0.1em; transition: color 0.3s;
+        }
+        .gs-context-text {
+          font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;
+        }
+
+        /* Decision grid */
         .gs-decisions-section { display: flex; flex-direction: column; gap: 14px; }
         .gs-decisions-label {
           font-size: 0.6rem; font-weight: 900; color: var(--text-muted);
@@ -230,52 +342,100 @@ export default function GameScreen({ state, actions }) {
           border: 1px solid rgba(48,209,88,0.25);
         }
 
-        /* 2x2 Grid */
         .gs-decisions-grid-2x2 {
-          display: grid; grid-template-columns: 1fr 1fr;
-          gap: 14px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
         }
 
         .gs-decision-tile {
           display: flex; gap: 14px; align-items: flex-start;
           padding: 20px; cursor: pointer; transition: all 0.25s;
           border: 1px solid var(--glass-border); text-align: left;
-          background: rgba(255,255,255,0.02);
+          background: rgba(255,255,255,0.02); position: relative;
         }
         .gs-decision-tile:hover:not(.disabled) {
           border-color: var(--accent-primary);
-          background: rgba(61, 127, 255, 0.06);
+          background: rgba(61,127,255,0.06);
           transform: translateY(-3px);
           box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
-        .gs-decision-tile.disabled { opacity: 0.4; cursor: not-allowed; }
+        .gs-decision-tile.disabled { opacity: 0.45; cursor: not-allowed; }
 
         .tile-letter {
           width: 36px; height: 36px; min-width: 36px;
           background: var(--bg-surface); border: 1px solid var(--glass-border);
           border-radius: 10px; display: flex; align-items: center; justify-content: center;
           font-size: 0.9rem; font-weight: 900; color: var(--accent-primary);
+          flex-shrink: 0;
         }
         .gs-decision-tile:hover:not(.disabled) .tile-letter {
           background: var(--accent-primary); color: white;
         }
-
-        .tile-content { flex: 1; }
+        .tile-content { flex: 1; min-width: 0; }
         .tile-label { font-size: 0.85rem; font-weight: 800; color: white; margin-bottom: 6px; }
-        .tile-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; }
+        .tile-desc  { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; }
 
-        .gs-advance-wrap { display: flex; justify-content: center; }
-        .gs-advance-btn {
-          padding: 16px 40px; background: var(--accent-primary);
-          border: none; border-radius: var(--radius-md);
-          color: white; font-size: 0.9rem; font-weight: 900; letter-spacing: 0.08em;
-          cursor: pointer; transition: all 0.2s;
-          box-shadow: var(--shadow-neon);
+
+        /* Exit modal */
+        .exit-backdrop {
+          position: fixed;
+          inset: 0;
+          background: var(--bg-overlay);
+          z-index: 400;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+          backdrop-filter: blur(6px);
         }
-        .gs-advance-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+        .exit-panel {
+          width: 100%;
+          max-width: 420px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-dim);
+          border-radius: var(--radius-xl);
+          padding: 22px;
+          box-shadow: var(--shadow-card);
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+        .exit-title {
+          font-weight: 900;
+          color: var(--text-primary);
+          letter-spacing: 0.02em;
+          font-size: 1.05rem;
+        }
+        .exit-body {
+          color: var(--text-secondary);
+          font-size: 0.9rem;
+          line-height: 1.6;
+        }
+        .exit-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+        }
+        .exit-btn {
+          border-radius: 999px;
+          padding: 10px 14px;
+          font-weight: 900;
+          font-size: 0.8rem;
+          cursor: pointer;
+          border: 1px solid var(--glass-border);
+          background: rgba(255,255,255,0.03);
+          color: white;
+        }
+        .exit-btn:hover { background: rgba(255,255,255,0.08); }
+        .exit-confirm {
+          background: var(--accent-primary);
+          border-color: rgba(61,127,255,0.45);
+        }
+        .exit-confirm:hover { filter: brightness(1.06); }
 
+        /* Responsive */
         @media (max-width: 700px) {
           .gs-decisions-grid-2x2 { grid-template-columns: 1fr; }
+          .gs-meta-row { flex-direction: column; }
         }
 
         .anim-fade-in { animation: fadeIn 0.5s ease forwards; }

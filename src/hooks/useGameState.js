@@ -10,23 +10,22 @@ export function useGameState() {
   const goToScreen = useCallback((screen) =>
     dispatch({ type: ACTIONS.GO_TO_SCREEN, payload: screen }), []);
 
-  const selectScenario = useCallback((scenarioId) =>
-    dispatch({ type: ACTIONS.SELECT_SCENARIO, payload: scenarioId }), []);
+  const startGame = useCallback((scenarioId) =>
+    dispatch({ type: ACTIONS.START_GAME, payload: { scenarioId } }), []);
 
-  const makeDecision = useCallback((decision, phaseIndex) =>
-    dispatch({ type: ACTIONS.MAKE_DECISION, payload: { decision, phaseIndex } }), []);
+  const startScenario = startGame;
+
+  const answerQuestion = useCallback((question, option, questionIndex, secondsUsed) =>
+    dispatch({ type: ACTIONS.ANSWER_QUESTION, payload: { question, option, questionIndex, secondsUsed } }), []);
 
   const closeFeedback = useCallback(() =>
     dispatch({ type: ACTIONS.CLOSE_FEEDBACK }), []);
 
-  const triggerCrisis = useCallback((crisisId) =>
-    dispatch({ type: ACTIONS.TRIGGER_CRISIS, payload: crisisId }), []);
+  const nextQuestion = useCallback(() =>
+    dispatch({ type: ACTIONS.NEXT_QUESTION }), []);
 
-  const resolveCrisis = useCallback((option) =>
-    dispatch({ type: ACTIONS.RESOLVE_CRISIS, payload: { option } }), []);
-
-  const advancePhase = useCallback(() =>
-    dispatch({ type: ACTIONS.ADVANCE_PHASE }), []);
+  const exitGame = useCallback(() =>
+    dispatch({ type: ACTIONS.EXIT_GAME }), []);
 
   const loadSave = useCallback((saved) =>
     dispatch({ type: ACTIONS.LOAD_SAVE, payload: { saved } }), []);
@@ -38,12 +37,12 @@ export function useGameState() {
     state,
     dispatch,
     goToScreen,
-    selectScenario,
-    makeDecision,
+    startGame,
+    startScenario,
+    answerQuestion,
     closeFeedback,
-    triggerCrisis,
-    resolveCrisis,
-    advancePhase,
+    nextQuestion,
+    exitGame,
     loadSave,
     resetGame,
   };

@@ -20,7 +20,7 @@ export const METRICS_CONFIG = {
   stakeholderTrust: {
     key: 'stakeholderTrust',
     label: 'Stakeholder Trust',
-    icon: '🤝',
+    icon: '💛',
     description: 'Confidence of executives, clients, and regulators',
     unit: 'pts',
     weight: 0.20,
@@ -64,24 +64,30 @@ export const METRICS_CONFIG = {
 export const METRIC_KEYS = Object.keys(METRICS_CONFIG);
 
 export const INITIAL_METRICS = {
-  testCoverage:     55,
-  defectDetection:  50,
-  stakeholderTrust: 60,
-  teamMorale:       65,
-  budgetEfficiency: 70,
-  timelinePressure: 45,
-  riskExposure:     55,
+  testCoverage:     0,
+  defectDetection:  0,
+  stakeholderTrust: 0,
+  teamMorale:       0,
+  budgetEfficiency: 0,
+  timelinePressure: 0,
+  riskExposure:     0,
 };
 
 export const INITIAL_STATE = {
   // Navigation
-  screen: 'intro',           // 'intro' | 'select' | 'game' | 'result'
-  scenarioId: null,          // 'banking' | 'healthcare' | 'ecommerce'
+  screen: 'intro',           // 'intro' | 'game' | 'result'
+
+  // Scenario selection
+  scenarioId: null,          // incident/scenario id (e.g. 'incident-1')
+
+  // Last run summary (shown on main menu after exit)
+  lastSummary: null,         // { metrics, totalTimeMs, answeredCount, correctCount, exitedEarly }
 
   // Game progress
-  currentPhase: 0,           // 0-indexed
-  totalPhases: 12,
-  decisionsLog: [],          // Array of { phaseId, decisionId, label, delta, timestamp }
+  currentQuestion: 0,        // 0-indexed (0..29)
+  totalQuestions: 30,
+  questionSequence: [],      // Array of question IDs in play order
+  decisionsLog: [],          // Array of { questionNumber, questionId, letter, quality, isoRef, section, title, incidentId, timedOut, metricDeltas, timestamp }
 
   // Metrics
   metrics: { ...INITIAL_METRICS },
@@ -89,19 +95,12 @@ export const INITIAL_STATE = {
 
   // Scoring
   score: 0,
-  maxPossibleScore: 1000,
-
-  // Crisis
-  crisisActive: false,
-  crisisEventId: null,
-  crisisResolved: [],        // Array of resolved crisis IDs
+  correctCount: 0,
+  answeredCount: 0,
 
   // Feedback modal
   feedbackVisible: false,
   lastDecision: null,
-
-  // Phase transition
-  phaseTransitioning: false,
 
   // Game completion
   gameComplete: false,

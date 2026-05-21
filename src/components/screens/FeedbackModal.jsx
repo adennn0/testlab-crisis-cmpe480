@@ -1,17 +1,16 @@
-// FR-04: ISO 29119 feedback modal — shown after each decision
-
 import { useEffect } from 'react';
 import { METRICS_CONFIG } from '../../state/initialState.js';
 import { formatDelta } from '../../utils/metricHelpers.js';
+import ISOBadge from '../ui/ISOBadge.jsx';
 
 const qualityMeta = {
   best:    { label: 'OPTIMAL CHOICE',  color: 'var(--zone-safe-bar)',     icon: '✅' },
   good:    { label: 'GOOD CHOICE',     color: 'var(--zone-optimal-bar)',  icon: '👍' },
-  neutral: { label: 'ACCEPTABLE',      color: 'var(--text-muted)',        icon: '➡️' },
-  bad:     { label: 'POOR CHOICE',     color: 'var(--zone-critical-bar)', icon: '⚠️' },
+  poor:    { label: 'POOR CHOICE',     color: 'var(--zone-critical-bar)', icon: '⚠️' },
+  worst:   { label: 'WORST CHOICE',    color: 'var(--zone-critical-bar)', icon: '⛔' },
 };
 
-export default function FeedbackModal({ decision, onClose, isCrisis }) {
+export default function FeedbackModal({ decision, onClose }) {
   // Close on Escape
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
@@ -21,9 +20,15 @@ export default function FeedbackModal({ decision, onClose, isCrisis }) {
 
   if (!decision) return null;
 
-  const qm = qualityMeta[decision.quality] || qualityMeta.neutral;
+  const qm = qualityMeta[decision.quality] || qualityMeta.poor;
   const deltas = decision.metricDeltas || {};
   const significantDeltas = Object.entries(deltas).filter(([, v]) => v !== 0);
+
+  const resultIcon = decision.correct ? '✅' : '❌';
+  const resultLabel = decision.correct ? 'CORRECT' : 'INCORRECT';
+  const decisionTitle = decision.letter
+    ? `Protocol ${decision.letter}: ${decision.label}`
+    : decision.label;
 
   return (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
@@ -33,28 +38,28 @@ export default function FeedbackModal({ decision, onClose, isCrisis }) {
           <div className="modal-quality" style={{ color: qm.color }}>
             <span>{qm.icon}</span>
             <span className="font-mono">{qm.label}</span>
-            {isCrisis && <span className="modal-crisis-badge">⚡ CRISIS</span>}
           </div>
           <button className="modal-close" onClick={onClose} aria-label="Close feedback">✕</button>
         </div>
 
+        {/* Result */}
+        <div className="modal-result">
+          <span className="modal-result-icon">{resultIcon}</span>
+          <span className="font-mono">RESULT: {resultLabel}</span>
+          {decision.timedOut && <span className="modal-timeout-badge">TIMEOUT</span>}
+        </div>
+
         {/* Decision title */}
-        <h3 className="modal-decision-title">{decision.label}</h3>
+        <h3 className="modal-decision-title">{decisionTitle}</h3>
 
         {/* Feedback text */}
         <div className="modal-feedback">
           <p>{decision.feedback}</p>
         </div>
 
-        {/* ISO Reference */}
+        {/* ISO Reference — prominent badge */}
         {decision.isoRef && (
-          <div className="modal-iso">
-            <span className="modal-iso-icon">📋</span>
-            <div>
-              <div className="modal-iso-label">ISO REFERENCE</div>
-              <div className="modal-iso-ref font-mono">{decision.isoRef}</div>
-            </div>
-          </div>
+          <ISOBadge isoRef={decision.isoRef} />
         )}
 
         {/* Metric impacts */}
@@ -84,7 +89,7 @@ export default function FeedbackModal({ decision, onClose, isCrisis }) {
         )}
 
         <button id="feedback-continue-btn" className="btn btn-primary modal-continue" onClick={onClose}>
-          Continue to Next Phase →
+          Continue →
         </button>
       </div>
 
@@ -107,9 +112,28 @@ export default function FeedbackModal({ decision, onClose, isCrisis }) {
           padding-bottom: 16px; border-bottom: 2px solid;
         }
         .modal-quality { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; font-weight: 800; letter-spacing: 0.06em; }
-        .modal-crisis-badge {
-          font-size: 0.6875rem; background: var(--zone-warning-bg);
-          color: var(--zone-warning-text); padding: 2px 8px; border-radius: var(--radius-full);
+        .modal-result {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 12px;
+          border-radius: var(--radius-md);
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--border-dim);
+          color: var(--text-secondary);
+          font-size: 0.75rem;
+          font-weight: 900;
+          letter-spacing: 0.08em;
+        }
+        .modal-result-icon { font-size: 1rem; }
+        .modal-timeout-badge {
+          font-size: 0.65rem;
+          font-weight: 900;
+          padding: 2px 8px;
+          border-radius: 999px;
+          background: var(--zone-warning-bg);
+          color: var(--zone-warning-text);
+          letter-spacing: 0.1em;
         }
         .modal-close {
           background: none; border: none; color: var(--text-muted); cursor: pointer;

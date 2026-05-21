@@ -2,8 +2,28 @@
 
 import MetricBar from './MetricBar.jsx';
 import { METRIC_KEYS } from '../../state/initialState.js';
+import { useEffect, useState } from 'react';
 
 export default function MetricPanel({ metrics, prevMetrics, horizontal = false }) {
+  const [flashState, setFlashState] = useState({});
+
+  useEffect(() => {
+    if (!metrics || !prevMetrics) return;
+
+    const next = {};
+    for (const k of METRIC_KEYS) {
+      const delta = (metrics[k] ?? 0) - (prevMetrics[k] ?? 0);
+      if (delta > 0) next[k] = 'increase';
+      else if (delta < 0) next[k] = 'decrease';
+    }
+
+    if (Object.keys(next).length === 0) return;
+    setFlashState(next);
+
+    const t = setTimeout(() => setFlashState({}), 800);
+    return () => clearTimeout(t);
+  }, [metrics, prevMetrics]);
+
   return (
     <div className={`metric-panel ${horizontal ? 'metric-panel--horizontal' : ''}`}>
       <div className={`metric-panel-list ${horizontal ? 'metric-list--horizontal' : ''}`}>
@@ -13,6 +33,7 @@ export default function MetricPanel({ metrics, prevMetrics, horizontal = false }
             metricKey={key}
             value={metrics[key]}
             prevValue={prevMetrics?.[key]}
+            flash={flashState?.[key] || null}
             compact={horizontal}
           />
         ))}

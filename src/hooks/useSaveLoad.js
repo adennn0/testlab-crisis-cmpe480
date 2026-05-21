@@ -6,7 +6,7 @@ import { storageService } from '../state/storageService.js';
 export function useSaveLoad(state, loadSave) {
   // Auto-save on every meaningful state change
   useEffect(() => {
-    if (state.screen === 'game' && state.scenarioId) {
+    if (state.screen === 'game' && state.startedAt) {
       storageService.save(state);
     }
     if (state.screen === 'result') {
@@ -14,7 +14,7 @@ export function useSaveLoad(state, loadSave) {
     }
   }, [state]);
 
-  const hasSave = storageService.hasSave();
+  const hasSave = !!storageService.load();
 
   const resumeGame = useCallback(() => {
     const saved = storageService.load();

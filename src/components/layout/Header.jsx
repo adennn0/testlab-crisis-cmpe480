@@ -1,12 +1,17 @@
-// Header — logo + scenario name + score + phase progress bar
+// Header — logo + incident name + question progress + total time + exit
 
-import ScoreDisplay from '../ui/ScoreDisplay.jsx';
-
-export default function Header({ scenarioId, scenarioName, scenarioIcon, score, currentPhase, totalPhases }) {
-  const progress = totalPhases > 0 ? ((currentPhase) / totalPhases) * 100 : 0;
+export default function Header({
+  incidentName,
+  questionNumber,
+  totalQuestions,
+  totalTimeLabel,
+  score,
+  onExit,
+}) {
+  const progress = totalQuestions > 0 ? ((questionNumber - 1) / totalQuestions) * 100 : 0;
 
   return (
-    <header className="game-header" data-scenario={scenarioId}>
+    <header className="game-header">
       <div className="game-header-left">
         <div className="game-logo">
           <span className="game-logo-icon">⚗️</span>
@@ -15,10 +20,10 @@ export default function Header({ scenarioId, scenarioName, scenarioIcon, score, 
             <span className="game-logo-sub"> CRISIS</span>
           </div>
         </div>
-        {scenarioId && (
+        {incidentName && (
           <div className="game-scenario-chip">
-            <span>{scenarioIcon}</span>
-            <span>{scenarioName}</span>
+            <span>🚨</span>
+            <span>{incidentName}</span>
           </div>
         )}
       </div>
@@ -29,13 +34,17 @@ export default function Header({ scenarioId, scenarioName, scenarioIcon, score, 
             <div className="header-progress-fill" style={{ width: `${progress}%` }} />
           </div>
           <span className="header-progress-label font-mono">
-            {currentPhase}/{totalPhases} PHASES
+            {questionNumber}/{totalQuestions} QUESTIONS
           </span>
         </div>
       </div>
 
       <div className="game-header-right">
-        <ScoreDisplay score={score} compact />
+        <div className="header-right-stack">
+          <div className="header-time font-mono">Total Time: {totalTimeLabel}</div>
+          <div className="header-score font-mono">Score: {score ?? 0}</div>
+          <button className="header-exit" onClick={onExit}>🚪 Exit Game</button>
+        </div>
       </div>
 
       <style>{`
@@ -76,6 +85,39 @@ export default function Header({ scenarioId, scenarioName, scenarioIcon, score, 
         }
         .header-progress-label {
           font-size: 0.6rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.1em;
+        }
+
+        .header-right-stack { display: flex; align-items: center; gap: 12px; }
+        .header-time {
+          font-size: 0.7rem;
+          color: var(--text-muted);
+          font-weight: 800;
+          letter-spacing: 0.06em;
+          white-space: nowrap;
+        }
+        .header-score {
+          font-size: 0.7rem;
+          color: var(--text-muted);
+          font-weight: 900;
+          letter-spacing: 0.06em;
+          white-space: nowrap;
+        }
+        .header-exit {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--glass-border);
+          color: white;
+          padding: 8px 12px;
+          border-radius: 999px;
+          font-size: 0.75rem;
+          font-weight: 900;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+        .header-exit:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.18);
+          transform: translateY(-1px);
         }
       `}</style>
     </header>
